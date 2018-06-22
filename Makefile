@@ -1,6 +1,6 @@
 .PHONY: cabby dependencies install test
 
-all: cabby vagrant
+all: dependencies bundler vagrant test
 
 get-cabby:
 	rm -rf cabby
@@ -15,7 +15,7 @@ clean:
 dependencies:
 	gem install bundler
 
-install:
+bundler:
 	bundle install --path vendor/bundle
 
 test:
