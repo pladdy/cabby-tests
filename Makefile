@@ -1,13 +1,12 @@
 .PHONY: cabby dependencies install test
 
-all: dependencies bundler vagrant test
+all: dependencies bundler build deploy test
 
-get-cabby:
-	rm -rf cabby
-	git clone git@github.com:pladdy/cabby
-
-cabby: get-cabby
+build: get-cabby
 	cd cabby && make build-debian && vagrant halt
+
+bundler:
+	bundle install --path vendor/bundle
 
 clean:
 	rm -rf cabby vendor
@@ -15,11 +14,15 @@ clean:
 dependencies:
 	gem install bundler
 
-bundler:
-	bundle install --path vendor/bundle
+deploy:
+	vagrant up
+
+get-cabby:
+	rm -rf cabby
+	git clone https://github.com/pladdy/cabby.git
+
+re-deploy:
+	vagrant provision
 
 test:
 	bundle exec rspec spec/
-
-vagrant: cabby
-	vagrant up
