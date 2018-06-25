@@ -1,4 +1,4 @@
-.PHONY: cabby dependencies install test
+.PHONY: build clean deploy re-deploy test
 
 all: dependencies bundler build deploy test
 
@@ -24,5 +24,8 @@ get-cabby:
 re-deploy:
 	vagrant provision
 
-test:
+rspec:
+	bundle exec rspec spec/
+
+test: bundler deploy
 	bundle exec rspec spec/

@@ -28,6 +28,7 @@ Vagrant.configure("2") do |config|
     s.inline = <<-OUT
       cabby-certs
       CABBY_ENVIRONMENT=production cabby-cli -c /etc/cabby/cabby.json -u test@cabby.com -p test
+      sudo systemctl enable cabby
       systemctl start cabby
     OUT
   end
