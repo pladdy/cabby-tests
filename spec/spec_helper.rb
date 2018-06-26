@@ -19,6 +19,17 @@ def get_taxii_path(path, user = TAXII_USER, pass = TAXII_PASS)
   return response
 end
 
+def get_taxii_response(path, headers = nil)
+  uri = taxii_uri(path)
+  request = taxii_request(uri)
+
+  headers.each do |k, v|
+    request[k] = v
+  end
+
+  return taxii_response(uri, request)
+end
+
 def https_object(uri)
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
