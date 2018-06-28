@@ -6,6 +6,7 @@ TAXII_HOST = 'https://localhost'
 TAXII_PORT = 1234
 TAXII_USER = 'test@cabby.com'
 TAXII_PASS = 'test'
+API_ROOT = 'cabby_test_root'
 
 # helper for a basic request
 def get_taxii_path(path, user = TAXII_USER, pass = TAXII_PASS)
@@ -27,7 +28,8 @@ def get_taxii_response(path, headers = nil)
     request[k] = v
   end
 
-  return taxii_response(uri, request)
+  res = taxii_response(uri, request)
+  return res
 end
 
 def https_object(uri)
@@ -55,7 +57,7 @@ def taxii_response(uri, request)
   return response
 end
 
-def taxii_uri(path)
+def taxii_uri(path)\
   uri = URI.parse(TAXII_HOST + path)
   uri.port = TAXII_PORT
   return uri
