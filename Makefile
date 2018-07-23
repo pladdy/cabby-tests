@@ -16,10 +16,18 @@ dependencies:
 
 deploy:
 	vagrant up
+	vagrant provision --provision-with restart-cabby
 
-get-cabby:
+rm-cabby:
 	rm -rf cabby
+
+clone-cabby:
 	git clone https://github.com/pladdy/cabby.git
+
+cp-cabby:
+	cp -r /Users/pladdypants/dev/go/src/github.com/pladdy/cabby ./
+
+get-cabby: rm-cabby clone-cabby
 
 re-deploy:
 	vagrant provision

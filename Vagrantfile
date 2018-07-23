@@ -19,7 +19,7 @@ Vagrant.configure("2") do |config|
   config.vm.provision "install", type: "shell" do |s|
     s.inline = <<-OUT
       apt-get update
-      apt-get install -y sqlite jq
+      apt-get install -y make sqlite jq
       dpkg -i /vagrant/cabby/cabby_1.0_amd64.deb
     OUT
   end
@@ -31,5 +31,9 @@ Vagrant.configure("2") do |config|
       sudo systemctl enable cabby
       systemctl start cabby
     OUT
+  end
+
+  config.vm.provision "restart-cabby", type: "shell" do |s|
+    s.inline = "systemctl start cabby"
   end
 end
