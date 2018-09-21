@@ -1,15 +1,12 @@
-require 'rspec'
+require 'dotenv'
 require 'net/http'
 require 'net/https'
+require 'rspec'
 
-TAXII_HOST = 'https://localhost'
-TAXII_PORT = 1234
-TAXII_USER = 'test@cabby.com'
-TAXII_PASS = 'test'
-API_ROOT = 'cabby_test_root'
+Dotenv.load(File.join(File.dirname(__FILE__), '..', '.env'))
 
 # helper for a basic request
-def get_taxii_path(path, user = TAXII_USER, pass = TAXII_PASS)
+def get_taxii_path(path, user = ENV['TAXII_USER'], pass = ENV['TAXII_PASSWORD'])
   response = nil
   uri = taxii_uri(path)
 
@@ -40,7 +37,7 @@ def https_object(uri)
 end
 
 # helper to set up a request and customize it
-def taxii_request(uri, user = TAXII_USER, pass = TAXII_PASS)
+def taxii_request(uri, user = ENV['TAXII_USER'], pass = ENV['TAXII_PASSWORD'])
   request = Net::HTTP::Get.new uri
   request.basic_auth user, pass
   return request
@@ -58,7 +55,7 @@ def taxii_response(uri, request)
 end
 
 def taxii_uri(path)\
-  uri = URI.parse(TAXII_HOST + path)
-  uri.port = TAXII_PORT
+  uri = URI.parse(ENV['TAXII_HOST'] + path)
+  uri.port = ENV['TAXII_PORT']
   return uri
 end

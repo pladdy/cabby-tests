@@ -1,10 +1,8 @@
 require 'spec_helper'
 require 'shared'
 
-require 'json'
-
 describe '/<api root>/' do
-  api_root_path = '/' + API_ROOT + '/'
+  api_root_path = '/' + ENV['API_ROOT_PATH'] + '/'
 
   context 'with no basic auth' do
     response = get_taxii_path(api_root_path, nil, nil)

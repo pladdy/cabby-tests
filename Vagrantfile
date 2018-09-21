@@ -20,14 +20,19 @@ Vagrant.configure("2") do |config|
     s.inline = <<-OUT
       apt-get update
       apt-get install -y make sqlite jq
-      dpkg -i /vagrant/cabby/cabby_1.0_amd64.deb
+      dpkg -i /vagrant/cabby2/cabby_1.0_amd64.deb
     OUT
   end
 
   config.vm.provision "setup-cabby", type: "shell" do |s|
     s.inline = <<-OUT
       cabby-certs
-      CABBY_ENVIRONMENT=production cabby-cli -c /etc/cabby/cabby.json -u test@cabby.com -p test
+      /vagrant/scripts/setup-cabby
+    OUT
+  end
+
+  config.vm.provision "run-cabby", type: "shell" do |s|
+    s.inline = <<-OUT
       sudo systemctl enable cabby
       systemctl start cabby
     OUT

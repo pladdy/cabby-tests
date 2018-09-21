@@ -1,8 +1,6 @@
 require 'spec_helper'
 require 'shared'
 
-require 'json'
-
 describe '/taxii/' do
   server_discovery_path = '/taxii/'
 
