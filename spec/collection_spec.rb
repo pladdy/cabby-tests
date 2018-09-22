@@ -1,16 +1,16 @@
 require 'spec_helper'
 require 'shared'
 
-api_root_path = '/' + ENV['API_ROOT_PATH'] + '/'
+collection_path = '/' + ENV['API_ROOT_PATH'] + '/collections/' + ENV['COLLECTION_ID'] + '/'
 
-describe api_root_path do
+describe collection_path do
   context 'with no basic auth' do
-    response = get_taxii_path(api_root_path, nil, nil)
+    response = get_taxii_path(collection_path, nil, nil)
     include_examples "unauthorized", response
   end
 
   context 'with basic auth, no accept header' do
-    response = get_taxii_path(api_root_path)
+    response = get_taxii_path(collection_path)
     include_examples "invalid media type", response
   end
 
@@ -20,17 +20,17 @@ describe api_root_path do
   end
 
   context 'with basic auth, invalid accept header' do
-    response = get_taxii_response(api_root_path, {'Accept' => 'invalid'})
+    response = get_taxii_response(collection_path, {'Accept' => 'invalid'})
     include_examples "invalid media type", response
   end
 
   context 'with basic auth and accept header' do
-    response = get_taxii_response(api_root_path, {'Accept' => TAXII_ACCEPT_WITH_SPACE})
-    include_examples "api_root resource", response
+    response = get_taxii_response(collection_path, {'Accept' => TAXII_ACCEPT_WITH_SPACE})
+    include_examples "collection resource", response
   end
 
   context 'with basic auth and accept header, no space' do
-    response = get_taxii_response(api_root_path, {'Accept' => TAXII_ACCEPT_WITHOUT_SPACE})
-    include_examples "api_root resource", response
+    response = get_taxii_response(collection_path, {'Accept' => TAXII_ACCEPT_WITHOUT_SPACE})
+    include_examples "collection resource", response
   end
 end

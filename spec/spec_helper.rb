@@ -5,6 +5,9 @@ require 'rspec'
 
 Dotenv.load(File.join(File.dirname(__FILE__), '..', '.env'))
 
+TAXII_ACCEPT_WITH_SPACE = 'application/vnd.oasis.taxii+json; version=2.0'
+TAXII_ACCEPT_WITHOUT_SPACE = 'application/vnd.oasis.taxii+json;version=2.0'
+
 # helper for a basic request
 def get_taxii_path(path, user = ENV['TAXII_USER'], pass = ENV['TAXII_PASSWORD'])
   response = nil
@@ -54,7 +57,7 @@ def taxii_response(uri, request)
   return response
 end
 
-def taxii_uri(path)\
+def taxii_uri(path)
   uri = URI.parse(ENV['TAXII_HOST'] + path)
   uri.port = ENV['TAXII_PORT']
   return uri

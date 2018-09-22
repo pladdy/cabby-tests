@@ -3,7 +3,7 @@
 all: dependencies bundler build deploy test
 
 build: get-cabby
-	cd cabby2 && make build-debian && vagrant halt
+	cd cabby2 && make build-debian && vagrant destroy -f
 
 bundler:
 	bundle install --path vendor/bundle
@@ -24,10 +24,10 @@ deploy:
 	vagrant up
 	vagrant provision --provision-with restart-cabby
 
+get-cabby: rm-cabby cp-cabby #clone-cabby
+
 rm-cabby:
 	rm -rf cabby2
-
-get-cabby: rm-cabby cp-cabby #clone-cabby
 
 re-deploy:
 	vagrant provision
@@ -35,5 +35,5 @@ re-deploy:
 rspec:
 	bundle exec rspec spec/
 
-test: bundler deploy
+test: bundler
 	bundle exec rspec spec/

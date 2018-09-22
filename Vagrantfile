@@ -38,7 +38,7 @@ Vagrant.configure("2") do |config|
     OUT
   end
 
-  config.vm.provision "restart-cabby", type: "shell" do |s|
-    s.inline = "systemctl start cabby"
+  config.vm.provision "restart-cabby", type: "shell", run: "never" do |s|
+    s.inline = "systemctl restart cabby"
   end
 end

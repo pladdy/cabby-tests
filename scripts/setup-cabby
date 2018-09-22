@@ -4,11 +4,11 @@ set -aeu
 set -o pipefail
 
 # source the env vars
-source $(dirname $0)/../.env
+source "$(dirname $0)"/../.env
 
 # set up the server
-sudo cabby-cli create user -u $TAXII_USER -p $TAXII_PASSWORD -a
-
-sudo cabby-cli create discovery -d $DISCOVERY_DESCRIPTION -t $DISCOVERY_TITLE -u $DISCOVERY_DEFAULT -c $DISCOVERY_CONTACT
-
-sudo cabby-cli create apiRoot -a $API_ROOT_PATH -t $API_ROOT_TITLE -m $API_ROOT_MAX_CONTENT_LENGTH -v $API_ROOT_VERSION
+sudo cabby-cli create user -u "$TAXII_USER" -p "$TAXII_PASSWORD" -a
+sudo cabby-cli create discovery -d "$DISCOVERY_DESCRIPTION" -t "$DISCOVERY_TITLE" -u "$DISCOVERY_DEFAULT" -c "$DISCOVERY_CONTACT"
+sudo cabby-cli create apiRoot -a "$API_ROOT_PATH" -t "$API_ROOT_TITLE" -m "$API_ROOT_MAX_CONTENT_LENGTH" -v "$API_ROOT_VERSION"
+sudo cabby-cli create collection -a "$API_ROOT_PATH" -t "$COLLECTION_TITLE" -i "$COLLECTION_ID"
+sudo cabby-cli create userCollection -u "$TAXII_USER" -i "$COLLECTION_ID" -r -w

@@ -11,8 +11,8 @@ shared_examples "api_root resource" do |response|
   resource = JSON.parse(response.body)
 
   context 'when a response is an api root resource' do
-    include_examples "content-type is taxii", response
     include_examples "status ok", response
+    include_examples "content-type is taxii", response
 
     it 'has a title defined' do
       expect(resource['title'].size).to be > 0
@@ -28,10 +28,48 @@ shared_examples "api_root resource" do |response|
   end
 end
 
+shared_examples "collection resource" do |response|
+  resource = JSON.parse(response.body)
+  puts resource
+
+  context 'when a response is a collection resource' do
+    include_examples "status ok", response
+    include_examples "content-type is taxii", response
+
+    it 'has a id defined' do
+      expect(resource['id'].size).to be > 0
+    end
+
+    it 'has a title defined' do
+      expect(resource['title'].size).to be > 0
+    end
+
+    it 'has a can_read defined' do
+      expect(resource['can_read']).to be true
+    end
+
+    it 'has a can_write defined' do
+      expect(resource['can_write']).to be true
+    end
+  end
+end
+
+shared_examples "collections resource" do |response|
+  context 'when response is a collections resource' do
+    include_examples "status ok", response
+    include_examples "content-type is taxii", response
+
+    it 'has a title defined' do
+      resource = JSON.parse(response.body)
+      expect(resource['collections'].size).to be > 0
+    end
+  end
+end
+
 shared_examples "discovery resource" do |response|
   context 'when response is a discovery resource' do
-    include_examples "content-type is taxii", response
     include_examples "status ok", response
+    include_examples "content-type is taxii", response
 
     it 'has a title defined' do
       resource = JSON.parse(response.body)
@@ -63,7 +101,7 @@ end
 
 shared_examples "resource does not exist" do |response|
   context 'when resource does not exist' do
-    it 'returns a 404' do
+    it 'returns a 404 status code' do
       expect(response.code).to eq("404")
     end
   end
