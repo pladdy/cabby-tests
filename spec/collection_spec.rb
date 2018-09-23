@@ -3,7 +3,7 @@ require 'shared'
 
 collection_path = '/' + ENV['API_ROOT_PATH'] + '/collections/' + ENV['COLLECTION_ID'] + '/'
 
-describe collection_path do
+describe "#{collection_path} negative cases" do
   context 'with no basic auth' do
     response = get_taxii_path(collection_path, nil, nil)
     include_examples "unauthorized", response
@@ -23,7 +23,9 @@ describe collection_path do
     response = get_taxii_response(collection_path, {'Accept' => 'invalid'})
     include_examples "invalid media type", response
   end
+end
 
+describe "#{collection_path} positive cases" do
   context 'with basic auth and accept header' do
     response = get_taxii_response(collection_path, {'Accept' => TAXII_ACCEPT_WITH_SPACE})
     include_examples "collection resource", response

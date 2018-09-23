@@ -3,7 +3,7 @@ require 'shared'
 
 server_discovery_path = '/taxii/'
 
-describe server_discovery_path do
+describe "#{server_discovery_path} negative cases" do
   context 'with no basic auth' do
     response = get_taxii_path(server_discovery_path, nil, nil)
     include_examples "unauthorized", response
@@ -18,7 +18,9 @@ describe server_discovery_path do
     response = get_taxii_response(server_discovery_path, {'Accept' => 'invalid'})
     include_examples "invalid media type", response
   end
+end
 
+describe "#{server_discovery_path} positive cases" do
   context 'with basic auth and accept header' do
     response = get_taxii_response(server_discovery_path, {'Accept' => TAXII_ACCEPT_WITH_SPACE})
     include_examples "discovery resource", response

@@ -30,7 +30,6 @@ end
 
 shared_examples "collection resource" do |response|
   resource = JSON.parse(response.body)
-  puts resource
 
   context 'when a response is a collection resource' do
     include_examples "status ok", response
