@@ -7,58 +7,82 @@ Dotenv.load(File.join(File.dirname(__FILE__), '..', '.env'))
 
 TAXII_ACCEPT_WITH_SPACE = 'application/vnd.oasis.taxii+json; version=2.0'
 TAXII_ACCEPT_WITHOUT_SPACE = 'application/vnd.oasis.taxii+json;version=2.0'
+STIX_ACCEPT_WITH_SPACE = 'application/vnd.oasis.stix+json; version=2.0'
+STIX_ACCEPT_WITHOUT_SPACE = 'application/vnd.oasis.stix+json;version=2.0'
 
-# helper for a basic request
-def get_taxii_path(path, user = ENV['TAXII_USER'], pass = ENV['TAXII_PASSWORD'])
-  response = nil
-  uri = taxii_uri(path)
+# path helpers
 
-  https_object(uri).start do |https|
-    response = https.request taxii_request(uri, user, pass)
-  end
-
-  return response
+def api_root_path(api_root = ENV['API_ROOT_PATH'])
+  return '/' + api_root + '/'
 end
 
-def get_taxii_response(path, headers = nil)
-  uri = taxii_uri(path)
-  request = taxii_request(uri)
-
-  headers.each do |k, v|
-    request[k] = v
-  end
-
-  res = taxii_response(uri, request)
-  return res
+def collection_path(collection_id = ENV['COLLECTION_ID'])
+   return '/' + ENV['API_ROOT_PATH'] + '/collections/' + collection_id + '/'
 end
 
-def https_object(uri)
+def collections_path(api_root = ENV['API_ROOT_PATH'])
+  return '/' + api_root + '/collections/'
+end
+
+def discovery_path
+  return '/taxii/'
+end
+
+def objects_path(collection_id = ENV['COLLECTION_ID'])
+  return '/' + ENV['API_ROOT_PATH'] + '/collections/' + collection_id + '/objects/'
+end
+
+# http helpers
+
+def get_no_auth(path)
+  uri = path_to_uri(path)
+  return response(uri, Net::HTTP::Get.new(uri))
+end
+
+def get_with_auth(path, headers = {})
+  uri = path_to_uri(path)
+  request = with_auth(Net::HTTP::Get.new(uri), ENV['TAXII_USER'], ENV['TAXII_PASSWORD'])
+  with_headers!(request, headers)
+  return response(uri, request)
+end
+
+def https(uri)
   http = Net::HTTP.new(uri.host, uri.port)
   http.use_ssl = true
   http.verify_mode = OpenSSL::SSL::VERIFY_NONE
   return http
 end
 
-# helper to set up a request and customize it
-def taxii_request(uri, user = ENV['TAXII_USER'], pass = ENV['TAXII_PASSWORD'])
-  request = Net::HTTP::Get.new uri
+def path_to_uri(path)
+  uri = URI.parse(ENV['TAXII_HOST'] + path)
+  uri.port = ENV['TAXII_PORT']
+  return uri
+end
+
+def post_no_auth(path, payload = nil)
+  uri = path_to_uri(path)
+  return response(uri, Net::HTTP::Post.new(uri))
+end
+
+def post_with_auth(path, headers = {}, payload = nil)
+  uri = path_to_uri(path)
+  request = with_auth(Net::HTTP::Post.new(uri), ENV['TAXII_USER'], ENV['TAXII_PASSWORD'])
+  with_headers!(request, headers)
+  request.body = payload.to_json
+  return response(uri, request)
+end
+
+def response(uri, req)
+  return https(uri).start do |https|
+    https.request req
+  end
+end
+
+def with_auth(request, user, pass)
   request.basic_auth user, pass
   return request
 end
 
-# helper to be used to get response of a customized request
-def taxii_response(uri, request)
-  response = nil
-
-  https_object(uri).start do |https|
-    response = https.request request
-  end
-
-  return response
-end
-
-def taxii_uri(path)
-  uri = URI.parse(ENV['TAXII_HOST'] + path)
-  uri.port = ENV['TAXII_PORT']
-  return uri
+def with_headers!(request, headers)
+  headers.each { |k, v| request[k] = v }
 end

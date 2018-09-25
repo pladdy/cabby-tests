@@ -1,33 +1,35 @@
 require 'spec_helper'
 require 'shared'
 
-server_discovery_path = '/taxii/'
-
-describe "#{server_discovery_path} negative cases" do
+describe "#{discovery_path} negative cases" do
   context 'with no basic auth' do
-    response = get_taxii_path(server_discovery_path, nil, nil)
+    response = get_no_auth(discovery_path)
     include_examples "unauthorized", response
   end
 
-  context 'with basic auth, no accept header' do
-    response = get_taxii_path(server_discovery_path)
-    include_examples "invalid media type", response
-  end
+  context 'with basic auth' do
+    context 'with no accept header' do
+      response = get_with_auth(discovery_path)
+      include_examples "invalid media type", response
+    end
 
-  context 'with basic auth, invalid accept header' do
-    response = get_taxii_response(server_discovery_path, {'Accept' => 'invalid'})
-    include_examples "invalid media type", response
+    context 'with invalid accept header' do
+      response = get_with_auth(discovery_path, {'Accept' => 'invalid'})
+      include_examples "invalid media type", response
+    end
   end
 end
 
-describe "#{server_discovery_path} positive cases" do
-  context 'with basic auth and accept header' do
-    response = get_taxii_response(server_discovery_path, {'Accept' => TAXII_ACCEPT_WITH_SPACE})
-    include_examples "discovery resource", response
-  end
+describe "#{discovery_path} positive cases" do
+  context 'with basic auth' do
+    context 'with valid accept header' do
+      response = get_with_auth(discovery_path, {'Accept' => TAXII_ACCEPT_WITH_SPACE})
+      include_examples "discovery resource", response
+    end
 
-  context 'with basic auth and accept header, no space' do
-    response = get_taxii_response(server_discovery_path, {'Accept' => TAXII_ACCEPT_WITHOUT_SPACE})
-    include_examples "discovery resource", response
+    context 'with valid accept header, no space' do
+      response = get_with_auth(discovery_path, {'Accept' => TAXII_ACCEPT_WITHOUT_SPACE})
+      include_examples "discovery resource", response
+    end
   end
 end
