@@ -1,7 +1,7 @@
 #!/usr/bin/env bash
 
-set -aeu
-set -o pipefail
+set -euo pipefail
+# ref: http://redsymbol.net/articles/unofficial-bash-strict-mode/
 
 # source the env vars
 source "$(dirname $0)"/../.env

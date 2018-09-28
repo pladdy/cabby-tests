@@ -34,7 +34,7 @@ describe "post #{objects_path} negative cases" do
 end
 
 describe "post #{objects_path} positive cases" do
-  payload = File.readlines('spec/data/malware_bundle.json')
+  payload = File.read('spec/data/malware_bundle.json')
 
   context 'with basic auth' do
     context 'with valid headers, with space' do

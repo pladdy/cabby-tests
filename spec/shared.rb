@@ -112,6 +112,12 @@ shared_examples "resource does not exist" do |response|
   end
 end
 
+shared_examples "status accepted" do |response|
+  it 'returns a 202 status code' do
+    expect(response.code).to eq("202")
+  end
+end
+
 shared_examples "status ok" do |response|
   it 'returns a 200 status code' do
     expect(response.code).to eq("200")
@@ -122,11 +128,11 @@ shared_examples "status resource" do |response|
   resource = JSON.parse(response.body)
 
   context 'when response is a status resource' do
-    include_examples "status ok", response
+    include_examples "status accepted", response
     include_examples "content-type is taxii", response
 
     it 'has a failure_count > 0' do
-      expect(resource['failure_count']).to be > 0
+      expect(resource['failure_count']).to be >= 0
     end
 
     it 'has an id defined' do
@@ -138,7 +144,7 @@ shared_examples "status resource" do |response|
     end
 
     it 'has a success_count > 0' do
-      expect(resource['success_count']).to be > 0
+      expect(resource['success_count']).to be >= 0
     end
 
     it 'has a total_count > 0' do

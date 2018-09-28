@@ -68,13 +68,13 @@ def post_with_auth(path, headers = {}, payload = nil)
   uri = path_to_uri(path)
   request = with_auth(Net::HTTP::Post.new(uri), ENV['TAXII_USER'], ENV['TAXII_PASSWORD'])
   with_headers!(request, headers)
-  request.body = payload.to_json
+  request.body = payload
   return response(uri, request)
 end
 
-def response(uri, req)
+def response(uri, req, payload = nil)
   return https(uri).start do |https|
-    https.request req
+    https.request req, payload
   end
 end
 
@@ -85,4 +85,5 @@ end
 
 def with_headers!(request, headers)
   headers.each { |k, v| request[k] = v }
+  headers['Accept-Encoding'] = 'identity'
 end
