@@ -104,6 +104,40 @@ shared_examples "invalid media type" do |response|
   end
 end
 
+shared_examples "object resource" do |response|
+  resource = JSON.parse(response.body)
+
+  context 'when a response is a stix object' do
+    include_examples "status ok", response
+    include_examples "content-type is stix", response
+
+    it 'has at least one object' do
+      expect(resource['objects'].size).to be > 0
+    end
+
+    it 'has a bundle type' do
+      expect(resource['type']).to eq('bundle')
+    end
+  end
+end
+
+shared_examples "objects resource" do |response|
+  resource = JSON.parse(response.body)
+
+  context 'when a response is a stix bundle' do
+    include_examples "status ok", response
+    include_examples "content-type is stix", response
+
+    it 'has at least one object' do
+      expect(resource['objects'].size).to be > 0
+    end
+
+    it 'has a bundle type' do
+      expect(resource['type']).to eq('bundle')
+    end
+  end
+end
+
 shared_examples "resource does not exist" do |response|
   context 'when resource does not exist' do
     it 'returns a 404 status code' do
@@ -125,31 +159,41 @@ shared_examples "status ok" do |response|
 end
 
 shared_examples "status resource" do |response|
-  resource = JSON.parse(response.body)
+  include_examples "content-type is taxii", response
 
+  resource = JSON.parse(response.body)
+  it 'has a failure_count > 0' do
+    expect(resource['failure_count']).to be >= 0
+  end
+
+  it 'has an id defined' do
+    expect(resource['id'].size).to be > 0
+  end
+
+  it 'has a status defined' do
+    expect(resource['status'].size).to be > 0
+  end
+
+  it 'has a success_count > 0' do
+    expect(resource['success_count']).to be >= 0
+  end
+
+  it 'has a total_count > 0' do
+    expect(resource['total_count']).to be > 0
+  end
+end
+
+shared_examples "status resource after get" do |response|
+  context 'when response is a status resource' do
+    include_examples "status ok", response
+    include_examples "status resource", response
+  end
+end
+
+shared_examples "status resource after post" do |response|
   context 'when response is a status resource' do
     include_examples "status accepted", response
-    include_examples "content-type is taxii", response
-
-    it 'has a failure_count > 0' do
-      expect(resource['failure_count']).to be >= 0
-    end
-
-    it 'has an id defined' do
-      expect(resource['id'].size).to be > 0
-    end
-
-    it 'has a status defined' do
-      expect(resource['status'].size).to be > 0
-    end
-
-    it 'has a success_count > 0' do
-      expect(resource['success_count']).to be >= 0
-    end
-
-    it 'has a total_count > 0' do
-      expect(resource['total_count']).to be > 0
-    end
+    include_examples "status resource", response
   end
 end
 

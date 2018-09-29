@@ -32,6 +32,10 @@ def objects_path(collection_id = ENV['COLLECTION_ID'])
   return '/' + ENV['API_ROOT_PATH'] + '/collections/' + collection_id + '/objects/'
 end
 
+def status_path(api_root = ENV['API_ROOT_PATH'])
+  return '/' + api_root + '/status/'
+end
+
 # http helpers
 
 def get_no_auth(path)
@@ -57,6 +61,11 @@ def path_to_uri(path)
   uri = URI.parse(ENV['TAXII_HOST'] + path)
   uri.port = ENV['TAXII_PORT']
   return uri
+end
+
+def post_a_bundle(bundle)
+  headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE, 'Content-Type' => STIX_ACCEPT_WITH_SPACE}
+  return post_with_auth(objects_path, headers, bundle)
 end
 
 def post_no_auth(path, payload = nil)
