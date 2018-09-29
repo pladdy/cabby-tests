@@ -38,13 +38,13 @@ describe "get object" do
       context 'with valid headers, with space' do
         headers = {'Accept' => STIX_ACCEPT_WITH_SPACE}
         response = get_with_auth(test_object_path, headers)
-        include_examples "object resource", response
+        include_examples "stix bundle resource", response
       end
 
       context 'with valid headers, no space' do
         headers = {'Accept' => STIX_ACCEPT_WITHOUT_SPACE}
         response = get_with_auth(test_object_path, headers)
-        include_examples "object resource", response
+        include_examples "stix bundle resource", response
       end
     end
   end

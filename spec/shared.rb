@@ -104,36 +104,15 @@ shared_examples "invalid media type" do |response|
   end
 end
 
-shared_examples "object resource" do |response|
+shared_examples "manifest resource" do |response|
   resource = JSON.parse(response.body)
 
   context 'when a response is a stix object' do
     include_examples "status ok", response
-    include_examples "content-type is stix", response
+    include_examples "content-type is taxii", response
 
     it 'has at least one object' do
       expect(resource['objects'].size).to be > 0
-    end
-
-    it 'has a bundle type' do
-      expect(resource['type']).to eq('bundle')
-    end
-  end
-end
-
-shared_examples "objects resource" do |response|
-  resource = JSON.parse(response.body)
-
-  context 'when a response is a stix bundle' do
-    include_examples "status ok", response
-    include_examples "content-type is stix", response
-
-    it 'has at least one object' do
-      expect(resource['objects'].size).to be > 0
-    end
-
-    it 'has a bundle type' do
-      expect(resource['type']).to eq('bundle')
     end
   end
 end
@@ -197,6 +176,22 @@ shared_examples "status resource after post" do |response|
   end
 end
 
+shared_examples "stix bundle resource" do |response|
+  resource = JSON.parse(response.body)
+
+  context 'when a response is a stix object' do
+    include_examples "status ok", response
+    include_examples "content-type is stix", response
+
+    it 'has at least one object' do
+      expect(resource['objects'].size).to be > 0
+    end
+
+    it 'has a bundle type' do
+      expect(resource['type']).to eq('bundle')
+    end
+  end
+end
 
 shared_examples "unauthorized" do |response|
   context 'when user is unauthorized' do

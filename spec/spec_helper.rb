@@ -28,6 +28,10 @@ def discovery_path
   return '/taxii/'
 end
 
+def manifest_path(collection_id = ENV['COLLECTION_ID'])
+  return '/' + ENV['API_ROOT_PATH'] + '/collections/' + collection_id + '/manifest/'
+end
+
 def objects_path(collection_id = ENV['COLLECTION_ID'])
   return '/' + ENV['API_ROOT_PATH'] + '/collections/' + collection_id + '/objects/'
 end

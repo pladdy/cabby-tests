@@ -31,12 +31,12 @@ describe "get #{objects_path} positive cases" do
   context 'with basic auth' do
     context 'with valid accept header' do
       response = get_with_auth(objects_path, {'Accept' => STIX_ACCEPT_WITH_SPACE})
-      include_examples "objects resource", response
+      include_examples "stix bundle resource", response
     end
 
     context 'with valid accept header, no space' do
       response = get_with_auth(objects_path, {'Accept' => STIX_ACCEPT_WITHOUT_SPACE})
-      include_examples "objects resource", response
+      include_examples "stix bundle resource", response
     end
   end
 end
