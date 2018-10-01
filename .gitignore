@@ -18,7 +18,7 @@ Gemfile.lock
 .ruby-version
 .ruby-gemset
 
-cabby2/
+cabby/
 
 # vagrant
 .vagrant
