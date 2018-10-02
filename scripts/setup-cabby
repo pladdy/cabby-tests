@@ -12,3 +12,7 @@ sudo cabby-cli create discovery -d "$DISCOVERY_DESCRIPTION" -t "$DISCOVERY_TITLE
 sudo cabby-cli create apiRoot -a "$API_ROOT_PATH" -t "$API_ROOT_TITLE" -m "$API_ROOT_MAX_CONTENT_LENGTH" -v "$API_ROOT_VERSION"
 sudo cabby-cli create collection -a "$API_ROOT_PATH" -t "$COLLECTION_TITLE" -i "$COLLECTION_ID"
 sudo cabby-cli create userCollection -u "$TAXII_USER" -i "$COLLECTION_ID" -r -w
+
+# add collection for pagination test
+sudo cabby-cli create collection -a "$API_ROOT_PATH" -t "$COLLECTION_TITLE" -i "0b1bf920-c5c4-11e8-afb0-bf2a853ecb80"
+sudo cabby-cli create userCollection -u "$TAXII_USER" -i "0b1bf920-c5c4-11e8-afb0-bf2a853ecb80" -r -w

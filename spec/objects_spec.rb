@@ -31,12 +31,54 @@ describe "get #{objects_path} positive cases" do
   context 'with basic auth' do
     context 'with valid accept header' do
       response = get_with_auth(objects_path, {'Accept' => STIX_ACCEPT_WITH_SPACE})
-      include_examples "stix bundle resource", response
+      include_examples "stix bundle resource, no pagination", response
     end
 
     context 'with valid accept header, no space' do
       response = get_with_auth(objects_path, {'Accept' => STIX_ACCEPT_WITHOUT_SPACE})
-      include_examples "stix bundle resource", response
+      include_examples "stix bundle resource, no pagination", response
+    end
+  end
+end
+
+describe "#{objects_path} pagination negative cases" do
+  context 'with basic auth' do
+    context 'with valid accept header' do
+      context 'with invalid range' do
+        headers = {
+          'Accept' => STIX_ACCEPT_WITH_SPACE,
+          'Range' => 'items 10-0'
+        }
+        response = get_with_auth(objects_path, headers)
+        include_examples "range not satisfiable", response
+
+        headers = {
+          'Accept' => STIX_ACCEPT_WITH_SPACE,
+          'Range' => '0-0'
+        }
+        response = get_with_auth(objects_path, headers)
+        include_examples "range not satisfiable", response
+      end
+    end
+  end
+end
+
+describe "#{objects_path} pagination positive cases" do
+  context 'with basic auth' do
+    context 'with valid accept header' do
+      context 'with valid range' do
+        headers = {
+          'Accept' => STIX_ACCEPT_WITH_SPACE,
+          'Range' => 'items 0-0'
+        }
+        response = get_with_auth(objects_path, headers)
+        include_examples "stix bundle resource, with pagination", response
+
+        resource = JSON.parse(response.body)
+        it 'contains one object' do
+          expect(resource['objects'].size).to eq 1
+        end
+      end
     end
   end
 end

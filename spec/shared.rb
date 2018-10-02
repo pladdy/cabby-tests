@@ -49,13 +49,26 @@ end
 
 shared_examples "collections resource" do |response|
   context 'when response is a collections resource' do
-    include_examples "status ok", response
     include_examples "content-type is taxii", response
 
-    it 'has a title defined' do
+    it 'has > 0 collections' do
       resource = JSON.parse(response.body)
       expect(resource['collections'].size).to be > 0
     end
+  end
+end
+
+shared_examples "collections resource, no pagination" do |response|
+  context 'when response is a collections resource' do
+    include_examples "status ok", response
+    include_examples "collections resource", response
+  end
+end
+
+shared_examples "collections resource, with pagination" do |response|
+  context 'when response is a collections resource' do
+    include_examples "status partial", response
+    include_examples "collections resource", response
   end
 end
 
@@ -98,8 +111,17 @@ shared_examples "invalid media type" do |response|
   context 'when content-type is invalid' do
     include_examples "error resource", response
 
-    it 'returns a 415 status code' do
-      expect(response.code).to eq("415")
+    status = "415"
+    it "returns a #{status} status code" do
+      expect(response.code).to eq(status)
+    end
+  end
+end
+
+shared_examples "manifest entry resource" do |resource|
+  context 'when a response is a manifest entry resource' do
+    it 'has an id' do
+      expect(resource['id'].size).to be > 0
     end
   end
 end
@@ -107,8 +129,7 @@ end
 shared_examples "manifest resource" do |response|
   resource = JSON.parse(response.body)
 
-  context 'when a response is a stix object' do
-    include_examples "status ok", response
+  context 'when a response is a manifest resource' do
     include_examples "content-type is taxii", response
 
     it 'has at least one object' do
@@ -117,23 +138,56 @@ shared_examples "manifest resource" do |response|
   end
 end
 
+shared_examples "manifest resource, no pagination" do |response|
+  context 'when a response is a manifest resource' do
+    include_examples "status ok", response
+    include_examples "manifest resource", response
+  end
+end
+
+shared_examples "manifest resource, with pagination" do |response|
+  context 'when a response is a manifest resource' do
+    include_examples "status partial", response
+    include_examples "manifest resource", response
+  end
+end
+
+shared_examples "range not satisfiable" do |response|
+  include_examples "error resource", response
+
+  status = "416"
+  it "returns a #{status} status code" do
+    expect(response.code).to eq(status)
+  end
+end
+
 shared_examples "resource does not exist" do |response|
-  context 'when resource does not exist' do
-    it 'returns a 404 status code' do
-      expect(response.code).to eq("404")
-    end
+  include_examples "error resource", response
+
+  status = "404"
+  it "returns a #{status} status code" do
+    expect(response.code).to eq(status)
   end
 end
 
 shared_examples "status accepted" do |response|
-  it 'returns a 202 status code' do
-    expect(response.code).to eq("202")
+  status = "202"
+  it "returns a #{status} status code" do
+    expect(response.code).to eq(status)
   end
 end
 
 shared_examples "status ok" do |response|
-  it 'returns a 200 status code' do
-    expect(response.code).to eq("200")
+  status = "200"
+  it "returns a #{status} status code" do
+    expect(response.code).to eq(status)
+  end
+end
+
+shared_examples "status partial" do |response|
+  status = "206"
+  it "returns a #{status} status code" do
+    expect(response.code).to eq(status)
   end
 end
 
@@ -180,7 +234,6 @@ shared_examples "stix bundle resource" do |response|
   resource = JSON.parse(response.body)
 
   context 'when a response is a stix object' do
-    include_examples "status ok", response
     include_examples "content-type is stix", response
 
     it 'has at least one object' do
@@ -193,12 +246,25 @@ shared_examples "stix bundle resource" do |response|
   end
 end
 
-shared_examples "unauthorized" do |response|
-  context 'when user is unauthorized' do
-    include_examples "error resource", response
+shared_examples "stix bundle resource, no pagination" do |response|
+  context 'when response is a stix bundle resource' do
+    include_examples "status ok", response
+    include_examples "stix bundle resource", response
+  end
+end
 
-    it 'returns a 401 status code' do
-      expect(response.code).to eq("401")
-    end
+shared_examples "stix bundle resource, with pagination" do |response|
+  context 'when response is a stix bundle resource' do
+    include_examples "status partial", response
+    include_examples "stix bundle resource", response
+  end
+end
+
+shared_examples "unauthorized" do |response|
+  include_examples "error resource", response
+
+  status = "401"
+  it "returns a #{status} status code" do
+    expect(response.code).to eq(status)
   end
 end
