@@ -30,7 +30,7 @@ shared_examples "collection resource" do |response|
     include_examples "content-type is taxii", response
 
     it 'has an id defined' do
-      expect(resource['id'].size).to be > 0
+      expect(valid_uuid?(resource['id'])).to be true
     end
 
     it 'has a title defined' do
@@ -121,7 +121,7 @@ end
 shared_examples "manifest entry resource" do |resource|
   context 'when a response is a manifest entry resource' do
     it 'has an id' do
-      expect(resource['id'].size).to be > 0
+      expect(valid_uuid?(resource['id'])).to be true
     end
   end
 end
@@ -200,7 +200,7 @@ shared_examples "status resource" do |response|
   end
 
   it 'has an id defined' do
-    expect(resource['id'].size).to be > 0
+    expect(valid_uuid?(resource['id'])).to be true
   end
 
   it 'has a status defined' do

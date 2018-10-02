@@ -91,6 +91,10 @@ def response(uri, req, payload = nil)
   end
 end
 
+def valid_uuid?(uuid)
+  !uuid.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/).nil?
+end
+
 def with_auth(request, user, pass)
   request.basic_auth user, pass
   return request
