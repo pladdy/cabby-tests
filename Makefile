@@ -1,39 +1,29 @@
-.PHONY: build clean deploy re-deploy test
+.PHONY: all build clean deploy deploy-again rspec test
 
-all: dependencies bundler build deploy test
+all: dependencies deploy test
 
-build: get-cabby
-	cd cabby && make build-debian && vagrant destroy -f
+cabby:
+	cp -r /Users/pladdypants/dev/go/src/github.com/pladdy/cabby $@
+	#git clone https://github.com/pladdy/cabby.git
 
-bundler:
-	bundle install --path vendor/bundle
+build: cabby
+	cd $< && make build-debian && vagrant destroy -f
 
 clean:
 	rm -rf cabby vendor
 
-clone-cabby:
-	git clone https://github.com/pladdy/cabby.git
-
-cp-cabby:
-	cp -r /Users/pladdypants/dev/go/src/github.com/pladdy/cabby ./
-
 dependencies:
 	gem install bundler
 
-deploy:
+deploy: build
 	vagrant up
 	vagrant provision --provision-with restart-cabby
 
-get-cabby: rm-cabby cp-cabby #clone-cabby
-
-rm-cabby:
-	rm -rf cabby
-
-re-deploy:
+deploy-again:
 	vagrant provision
 
-rspec:
+rspec test: vendor
 	bundle exec rspec spec/
 
-test: bundler
-	bundle exec rspec spec/
+vendor:
+	bundle install --path $@
