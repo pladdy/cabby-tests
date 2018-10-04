@@ -4,6 +4,10 @@ require 'shared'
 # get
 
 describe "get objects" do
+  before(:all) do
+    post_a_bundle(File.read('spec/data/malware_bundle.json'))
+  end
+
   describe "#{objects_path} negative cases" do
     context 'with no basic auth' do
       response = get_no_auth(objects_path)
@@ -23,7 +27,7 @@ describe "get objects" do
 
       context 'with invalid api_root' do
         response = get_with_auth('/does_not_exist/', {'Accept' => STIX_ACCEPT_WITH_SPACE})
-        include_examples "resource does not exist", response
+        include_examples "resource not found", response
       end
     end
   end
@@ -40,6 +44,12 @@ describe "get objects" do
         include_examples "stix bundle resource, no pagination", response
       end
     end
+  end
+end
+
+describe "get objects, pagination" do
+  before(:all) do
+    post_a_bundle(File.read('spec/data/malware_bundle.json'))
   end
 
   describe "#{objects_path} pagination negative cases" do
@@ -85,6 +95,43 @@ describe "get objects" do
   end
 end
 
+describe "get objects, filtering" do
+  before(:all) do
+    post_a_bundle(File.read('spec/data/malware_bundle.json'))
+  end
+
+  path = objects_path + "?match[type]=foo"
+  describe "#{path} filtering negative cases" do
+    context 'with basic auth' do
+      context 'with valid accept header' do
+        context 'with invalid filter' do
+          headers = {'Accept' => STIX_ACCEPT_WITH_SPACE}
+          include_examples "resource not found", get_with_auth(path, headers)
+        end
+      end
+    end
+  end
+
+  path = objects_path + "?match[type]=malware"
+  describe "#{path} filtering positive cases" do
+    context 'with basic auth' do
+      context 'with valid accept header' do
+        context 'with valid type filter' do
+          headers = {'Accept' => STIX_ACCEPT_WITH_SPACE}
+          response = get_with_auth(path, headers)
+
+          resource = JSON.parse(response.body)
+          it 'contains one object' do
+            expect(resource['objects'].size).to eq 1
+          end
+
+          include_examples "stix bundle resource", response
+        end
+      end
+    end
+  end
+end
+
 # post
 
 describe "post #{objects_path}" do
@@ -109,7 +156,7 @@ describe "post #{objects_path}" do
       context 'with invalid api_root' do
         headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE, 'Content-Type' => STIX_ACCEPT_WITH_SPACE}
         response = post_with_auth('/does_not_exist/', headers)
-        include_examples "resource does not exist", response
+        include_examples "resource not found", response
       end
 
       context 'with invalid content-type header' do

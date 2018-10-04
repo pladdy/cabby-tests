@@ -27,7 +27,7 @@ describe "get status" do
       context 'with invalid api_root' do
         headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
         response = get_with_auth('/does_not_exist/', headers)
-        include_examples "resource does not exist", response
+        include_examples "resource not found", response
       end
     end
   end

@@ -20,7 +20,7 @@ describe "#{collection_path} negative cases" do
 
     context 'with invalid api_root' do
       response = get_with_auth('/does_not_exist/', {'Accept' => TAXII_ACCEPT_WITH_SPACE})
-      include_examples "resource does not exist", response
+      include_examples "resource not found", response
     end
   end
 end

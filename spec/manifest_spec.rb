@@ -2,7 +2,9 @@ require 'spec_helper'
 require 'shared'
 
 describe "get manifest" do
-  post_a_bundle(File.read('spec/data/malware_bundle.json'))
+  before(:all) do
+    post_a_bundle(File.read('spec/data/malware_bundle.json'))
+  end
 
   describe "#{manifest_path} negative cases" do
     context 'with no basic auth' do
@@ -25,7 +27,7 @@ describe "get manifest" do
       context 'with invalid api_root' do
         headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
         response = get_with_auth('/does_not_exist/', headers)
-        include_examples "resource does not exist", response
+        include_examples "resource not found", response
       end
     end
   end
@@ -44,6 +46,12 @@ describe "get manifest" do
         include_examples "manifest resource, no pagination", response
       end
     end
+  end
+end
+
+describe "get manifest, pagination" do
+  before(:all) do
+    post_a_bundle(File.read('spec/data/malware_bundle.json'))
   end
 
   describe "#{manifest_path} pagination negative cases" do
@@ -78,6 +86,44 @@ describe "get manifest" do
           }
           response = get_with_auth(manifest_path, headers)
           include_examples "manifest resource, with pagination", response
+
+          resource = JSON.parse(response.body)
+          it 'contains one object' do
+            expect(resource['objects'].size).to eq 1
+          end
+
+          include_examples "manifest entry resource", resource['objects'].first
+        end
+      end
+    end
+  end
+end
+
+describe "get manifest, filtering" do
+  before(:all) do
+    post_a_bundle(File.read('spec/data/malware_bundle.json'))
+  end
+
+  path = manifest_path + "?match[type]=foo"
+  describe "#{path} filtering negative cases" do
+    context 'with basic auth' do
+      context 'with valid accept header' do
+        context 'with invalid filter' do
+          headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
+          include_examples "resource not found", get_with_auth(path, headers)
+        end
+      end
+    end
+  end
+
+  path = manifest_path + "?match[type]=malware"
+  describe "#{path} filtering positive cases" do
+    context 'with basic auth' do
+      context 'with valid accept header' do
+        context 'with valid type filter' do
+          headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
+          response = get_with_auth(path, headers)
+          include_examples "manifest resource", response
 
           resource = JSON.parse(response.body)
           it 'contains one object' do

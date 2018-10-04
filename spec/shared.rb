@@ -161,7 +161,7 @@ shared_examples "range not satisfiable" do |response|
   end
 end
 
-shared_examples "resource does not exist" do |response|
+shared_examples "resource not found" do |response|
   include_examples "error resource", response
 
   status = "404"
