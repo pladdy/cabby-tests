@@ -1,4 +1,5 @@
 require 'dotenv'
+require 'logger'
 require 'net/http'
 require 'net/https'
 require 'rspec'
@@ -91,8 +92,25 @@ def response(uri, req, payload = nil)
   end
 end
 
-def valid_uuid?(uuid)
-  !uuid.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/).nil?
+def wait_for_bundle_to_post(bundle)
+  log = Logger.new(STDOUT)
+  status = nil
+
+  (0..2).each do |i|
+    status = post_a_bundle(bundle)
+    status = get_with_auth(status_path + "#{JSON.parse(status.body)['id']}/", {'Accept' => TAXII_ACCEPT_WITH_SPACE})
+
+    if JSON.parse(status.body)['status'] == "complete"
+      log.info("bundle posted")
+      return
+    else
+      sleep_seconds = i / 10.to_f
+      log.warn("bundle not posted yet, sleeping #{sleep_seconds} seconds")
+      sleep(sleep_seconds)
+    end
+  end
+
+  log.error("failed to post bundle; status: #{status.body}")
 end
 
 def with_auth(request, user, pass)
@@ -103,4 +121,14 @@ end
 def with_headers!(request, headers)
   headers.each { |k, v| request[k] = v }
   headers['Accept-Encoding'] = 'identity'
+end
+
+# validators
+
+def valid_uuid?(uuid)
+  !uuid.match(/[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}/).nil?
+end
+
+def valid_timestamp?(timestamp)
+  !timestamp.match(/\d{4}-\d\d-\d\dT\d\d:\d\d:\d\d\.?\d*Z?/).nil?
 end

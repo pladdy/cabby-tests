@@ -1,4 +1,4 @@
-.PHONY: all build clean deploy deploy-again rspec test
+.PHONY: all build cabby clean deploy deploy-again rspec test
 
 all: dependencies deploy test
 
@@ -7,9 +7,11 @@ cabby:
 	#git clone https://github.com/pladdy/cabby.git
 
 build: cabby
-	cd $< && make build-debian && vagrant destroy -f
+	cd $< && make build-debian #&& vagrant destroy -f
 
 clean:
+	vagrant destroy -f
+	cd cabby && vagrant destroy -f
 	rm -rf cabby vendor
 
 dependencies:

@@ -6,7 +6,7 @@ shared_examples "api_root resource" do |response|
 
   context 'when a response is an api root resource' do
     include_examples "status ok", response
-    include_examples "content-type is taxii", response
+    include_examples "header 'content-type' is taxii", response
 
     it 'has a title defined' do
       expect(resource['title'].size).to be > 0
@@ -27,7 +27,7 @@ shared_examples "collection resource" do |response|
 
   context 'when a response is a collection resource' do
     include_examples "status ok", response
-    include_examples "content-type is taxii", response
+    include_examples "header 'content-type' is taxii", response
 
     it 'has an id defined' do
       expect(valid_uuid?(resource['id'])).to be true
@@ -49,7 +49,7 @@ end
 
 shared_examples "collections resource" do |response|
   context 'when response is a collections resource' do
-    include_examples "content-type is taxii", response
+    include_examples "header 'content-type' is taxii", response
 
     it 'has > 0 collections' do
       resource = JSON.parse(response.body)
@@ -72,22 +72,10 @@ shared_examples "collections resource, with pagination" do |response|
   end
 end
 
-shared_examples "content-type is stix" do |response|
-  it 'has accept header with a stix content type' do
-    expect(response.to_hash['content-type'].first).to match(/application\/vnd.oasis.stix\+json/)
-  end
-end
-
-shared_examples "content-type is taxii" do |response|
-  it 'has accept header with a taxii content type' do
-    expect(response.to_hash['content-type'].first).to match(/application\/vnd.oasis.taxii\+json/)
-  end
-end
-
 shared_examples "discovery resource" do |response|
   context 'when response is a discovery resource' do
     include_examples "status ok", response
-    include_examples "content-type is taxii", response
+    include_examples "header 'content-type' is taxii", response
 
     it 'has a title defined' do
       resource = JSON.parse(response.body)
@@ -98,12 +86,38 @@ end
 
 shared_examples "error resource" do |response|
   context 'when response is an error resource' do
-    include_examples "content-type is taxii", response
+    include_examples "header 'content-type' is taxii", response
 
     it 'has a title defined' do
       taxii_error = JSON.parse(response.body)
       expect(taxii_error['title'].size).to be > 0
     end
+  end
+end
+
+shared_examples "header 'content-type' is stix" do |response|
+  it 'has header with a stix content type' do
+    expect(response.to_hash['content-type'].first).to match(/application\/vnd.oasis.stix\+json/)
+  end
+end
+
+shared_examples "header 'content-type' is taxii" do |response|
+  it 'has header with a taxii content type' do
+    expect(response.to_hash['content-type'].first).to match(/application\/vnd.oasis.taxii\+json/)
+  end
+end
+
+shared_examples "header 'x-taxii-date-added-first' is set" do |response|
+  it 'has a timestamp' do
+    header = response.to_hash['x-taxii-date-added-first'].first
+    expect(valid_timestamp?(header)).to be true
+  end
+end
+
+shared_examples "header 'x-taxii-date-added-last' is set" do |response|
+  it 'has a timestamp' do
+    header = response.to_hash['x-taxii-date-added-last'].first
+    expect(valid_timestamp?(header)).to be true
   end
 end
 
@@ -130,7 +144,9 @@ shared_examples "manifest resource" do |response|
   resource = JSON.parse(response.body)
 
   context 'when a response is a manifest resource' do
-    include_examples "content-type is taxii", response
+    include_examples "header 'content-type' is taxii", response
+    include_examples "header 'x-taxii-date-added-first' is set", response
+    include_examples "header 'x-taxii-date-added-last' is set", response
 
     it 'has at least one object' do
       expect(resource['objects'].size).to be > 0
@@ -192,7 +208,7 @@ shared_examples "status partial" do |response|
 end
 
 shared_examples "status resource" do |response|
-  include_examples "content-type is taxii", response
+  include_examples "header 'content-type' is taxii", response
 
   resource = JSON.parse(response.body)
   it 'has a failure_count > 0' do
@@ -234,7 +250,7 @@ shared_examples "stix bundle resource" do |response|
   resource = JSON.parse(response.body)
 
   context 'when a response is a stix object' do
-    include_examples "content-type is stix", response
+    include_examples "header 'content-type' is stix", response
 
     it 'has at least one object' do
       expect(resource['objects'].size).to be > 0

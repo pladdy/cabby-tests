@@ -2,10 +2,6 @@ require 'spec_helper'
 require 'shared'
 
 describe "get manifest" do
-  before(:all) do
-    post_a_bundle(File.read('spec/data/malware_bundle.json'))
-  end
-
   describe "#{manifest_path} negative cases" do
     context 'with no basic auth' do
       response = get_no_auth(manifest_path)
@@ -51,7 +47,7 @@ end
 
 describe "get manifest, pagination" do
   before(:all) do
-    post_a_bundle(File.read('spec/data/malware_bundle.json'))
+    wait_for_bundle_to_post(File.read('spec/data/malware_bundle.json'))
   end
 
   describe "#{manifest_path} pagination negative cases" do
@@ -101,7 +97,7 @@ end
 
 describe "get manifest, filtering" do
   before(:all) do
-    post_a_bundle(File.read('spec/data/malware_bundle.json'))
+    wait_for_bundle_to_post(File.read('spec/data/malware_bundle.json'))
   end
 
   path = manifest_path + "?match[type]=foo"

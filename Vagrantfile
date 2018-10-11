@@ -20,7 +20,7 @@ Vagrant.configure("2") do |config|
     s.inline = <<-OUT
       apt-get update
       apt-get install -y make sqlite jq
-      dpkg -i /vagrant/cabby/cabby_1.0_amd64.deb
+      dpkg -i /vagrant/cabby/cabby.deb
     OUT
   end
 
