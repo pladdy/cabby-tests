@@ -1,60 +1,53 @@
 require 'spec_helper'
-require 'json'
 
 shared_examples "api_root resource" do |response|
   resource = JSON.parse(response.body)
 
-  context 'when a response is an api root resource' do
-    include_examples "status ok", response
-    include_examples "header 'content-type' is taxii", response
+  include_examples "status ok", response
+  include_examples "header 'content-type' is taxii", response
 
-    it 'has a title defined' do
-      expect(resource['title'].size).to be > 0
-    end
+  it 'has a title defined' do
+    expect(resource['title'].size).to be > 0
+  end
 
-    it 'has a list of versions' do
-      expect(resource['versions'].size).to be > 0
-    end
+  it 'has a list of versions' do
+    expect(resource['versions'].size).to be > 0
+  end
 
-    it 'has a max_content_length' do
-      expect(resource['max_content_length'].to_i).to be > 0
-    end
+  it 'has a max_content_length' do
+    expect(resource['max_content_length'].to_i).to be > 0
   end
 end
 
 shared_examples "collection resource" do |response|
   resource = JSON.parse(response.body)
 
-  context 'when a response is a collection resource' do
-    include_examples "status ok", response
-    include_examples "header 'content-type' is taxii", response
+  include_examples "status ok", response
+  include_examples "header 'content-type' is taxii", response
 
-    it 'has an id defined' do
-      expect(valid_uuid?(resource['id'])).to be true
-    end
+  it 'has an id defined' do
+    expect(valid_uuid?(resource['id'])).to be true
+  end
 
-    it 'has a title defined' do
-      expect(resource['title'].size).to be > 0
-    end
+  it 'has a title defined' do
+    expect(resource['title'].size).to be > 0
+  end
 
-    it 'has a can_read defined' do
-      expect(resource['can_read']).to be true
-    end
+  it 'has a can_read defined' do
+    expect(resource['can_read']).to be true
+  end
 
-    it 'has a can_write defined' do
-      expect(resource['can_write']).to be true
-    end
+  it 'has a can_write defined' do
+    expect(resource['can_write']).to be true
   end
 end
 
 shared_examples "collections resource" do |response|
-  context 'when response is a collections resource' do
-    include_examples "header 'content-type' is taxii", response
+  include_examples "header 'content-type' is taxii", response
 
-    it 'has > 0 collections' do
-      resource = JSON.parse(response.body)
-      expect(resource['collections'].size).to be > 0
-    end
+  it 'has > 0 collections' do
+    resource = JSON.parse(response.body)
+    expect(resource['collections'].size).to be > 0
   end
 end
 
@@ -66,32 +59,26 @@ shared_examples "collections resource, no pagination" do |response|
 end
 
 shared_examples "collections resource, with pagination" do |response|
-  context 'when response is a collections resource' do
-    include_examples "status partial", response
-    include_examples "collections resource", response
-  end
+  include_examples "status partial", response
+  include_examples "collections resource", response
 end
 
 shared_examples "discovery resource" do |response|
-  context 'when response is a discovery resource' do
-    include_examples "status ok", response
-    include_examples "header 'content-type' is taxii", response
+  include_examples "status ok", response
+  include_examples "header 'content-type' is taxii", response
 
-    it 'has a title defined' do
-      resource = JSON.parse(response.body)
-      expect(resource['title'].size).to be > 0
-    end
+  it 'has a title defined' do
+    resource = JSON.parse(response.body)
+    expect(resource['title'].size).to be > 0
   end
 end
 
 shared_examples "error resource" do |response|
-  context 'when response is an error resource' do
-    include_examples "header 'content-type' is taxii", response
+  include_examples "header 'content-type' is taxii", response
 
-    it 'has a title defined' do
-      taxii_error = JSON.parse(response.body)
-      expect(taxii_error['title'].size).to be > 0
-    end
+  it 'has a title defined' do
+    taxii_error = JSON.parse(response.body)
+    expect(taxii_error['title'].size).to be > 0
   end
 end
 
@@ -133,39 +120,33 @@ shared_examples "invalid media type" do |response|
 end
 
 shared_examples "manifest entry resource" do |resource|
-  context 'when a response is a manifest entry resource' do
-    it 'has an id' do
-      expect(valid_uuid?(resource['id'])).to be true
-    end
+  it 'has an id' do
+    expect(valid_uuid?(resource['id'])).to be true
   end
 end
 
 shared_examples "manifest resource" do |response|
   resource = JSON.parse(response.body)
 
-  context 'when a response is a manifest resource' do
-    include_examples "header 'content-type' is taxii", response
-    include_examples "header 'x-taxii-date-added-first' is set", response
-    include_examples "header 'x-taxii-date-added-last' is set", response
+  include_examples "header 'content-type' is taxii", response
+  include_examples "header 'x-taxii-date-added-first' is set", response
+  include_examples "header 'x-taxii-date-added-last' is set", response
 
-    it 'has at least one object' do
-      expect(resource['objects'].size).to be > 0
-    end
+  it 'has at least one object' do
+    expect(resource['objects'].size).to be > 0
   end
+
+  include_examples "manifest entry resource", resource['objects'].first
 end
 
 shared_examples "manifest resource, no pagination" do |response|
-  context 'when a response is a manifest resource' do
-    include_examples "status ok", response
-    include_examples "manifest resource", response
-  end
+  include_examples "status ok", response
+  include_examples "manifest resource", response
 end
 
 shared_examples "manifest resource, with pagination" do |response|
-  context 'when a response is a manifest resource' do
-    include_examples "status partial", response
-    include_examples "manifest resource", response
-  end
+  include_examples "status partial", response
+  include_examples "manifest resource", response
 end
 
 shared_examples "range not satisfiable" do |response|
@@ -233,47 +214,37 @@ shared_examples "status resource" do |response|
 end
 
 shared_examples "status resource after get" do |response|
-  context 'when response is a status resource' do
-    include_examples "status ok", response
-    include_examples "status resource", response
-  end
+  include_examples "status ok", response
+  include_examples "status resource", response
 end
 
 shared_examples "status resource after post" do |response|
-  context 'when response is a status resource' do
-    include_examples "status accepted", response
-    include_examples "status resource", response
-  end
+  include_examples "status accepted", response
+  include_examples "status resource", response
 end
 
 shared_examples "stix bundle resource" do |response|
   resource = JSON.parse(response.body)
 
-  context 'when a response is a stix object' do
-    include_examples "header 'content-type' is stix", response
+  include_examples "header 'content-type' is stix", response
 
-    it 'has at least one object' do
-      expect(resource['objects'].size).to be > 0
-    end
+  it 'has at least one object' do
+    expect(resource['objects'].size).to be > 0
+  end
 
-    it 'has a bundle type' do
-      expect(resource['type']).to eq('bundle')
-    end
+  it 'has a bundle type' do
+    expect(resource['type']).to eq('bundle')
   end
 end
 
 shared_examples "stix bundle resource, no pagination" do |response|
-  context 'when response is a stix bundle resource' do
-    include_examples "status ok", response
-    include_examples "stix bundle resource", response
-  end
+  include_examples "status ok", response
+  include_examples "stix bundle resource", response
 end
 
 shared_examples "stix bundle resource, with pagination" do |response|
-  context 'when response is a stix bundle resource' do
-    include_examples "status partial", response
-    include_examples "stix bundle resource", response
-  end
+  include_examples "status partial", response
+  include_examples "stix bundle resource", response
 end
 
 shared_examples "unauthorized" do |response|

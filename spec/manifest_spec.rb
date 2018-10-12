@@ -1,8 +1,8 @@
 require 'spec_helper'
 require 'shared'
 
-describe "get manifest" do
-  describe "#{manifest_path} negative cases" do
+describe "manifest, negative cases" do
+  context 'when http get' do
     context 'with no basic auth' do
       response = get_no_auth(manifest_path)
       include_examples "unauthorized", response
@@ -26,55 +26,40 @@ describe "get manifest" do
         include_examples "resource not found", response
       end
     end
-  end
 
-  describe "#{manifest_path} positive cases" do
-    context 'with basic auth' do
-      context 'with valid headers, with space' do
-        headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
+    context 'with valid accept header' do
+      context 'with invalid range' do
+        headers = {
+          'Accept' => TAXII_ACCEPT_WITH_SPACE,
+          'Range' => 'items 10-0'
+        }
         response = get_with_auth(manifest_path, headers)
-        include_examples "manifest resource, no pagination", response
+        include_examples "range not satisfiable", response
+
+        headers = {
+          'Accept' => TAXII_ACCEPT_WITH_SPACE,
+          'Range' => '0-0'
+        }
+        response = get_with_auth(manifest_path, headers)
+        include_examples "range not satisfiable", response
       end
 
-      context 'with valid headers, no space' do
-        headers = {'Accept' => TAXII_ACCEPT_WITHOUT_SPACE}
-        response = get_with_auth(manifest_path, headers)
-        include_examples "manifest resource, no pagination", response
+      context 'with invalid filter' do
+        headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
+        include_examples "resource not found", get_with_auth(manifest_path + "?match[type]=foo", headers)
       end
     end
   end
 end
 
-describe "get manifest, pagination" do
-  before(:all) do
-    wait_for_bundle_to_post(File.read('spec/data/malware_bundle.json'))
-  end
-
-  describe "#{manifest_path} pagination negative cases" do
+describe "manifest, positive cases" do
+  context 'when http get' do
     context 'with basic auth' do
-      context 'with valid accept header' do
-        context 'with invalid range' do
-          headers = {
-            'Accept' => TAXII_ACCEPT_WITH_SPACE,
-            'Range' => 'items 10-0'
-          }
-          response = get_with_auth(manifest_path, headers)
-          include_examples "range not satisfiable", response
+      context 'with valid headers, with space' do
+        headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
+        response = get_with_auth(manifest_path, headers)
+        include_examples "manifest resource, no pagination", response
 
-          headers = {
-            'Accept' => TAXII_ACCEPT_WITH_SPACE,
-            'Range' => '0-0'
-          }
-          response = get_with_auth(manifest_path, headers)
-          include_examples "range not satisfiable", response
-        end
-      end
-    end
-  end
-
-  describe "#{manifest_path} pagination positive cases" do
-    context 'with basic auth' do
-      context 'with valid accept header' do
         context 'with valid range' do
           headers = {
             'Accept' => TAXII_ACCEPT_WITH_SPACE,
@@ -87,47 +72,24 @@ describe "get manifest, pagination" do
           it 'contains one object' do
             expect(resource['objects'].size).to eq 1
           end
-
-          include_examples "manifest entry resource", resource['objects'].first
         end
-      end
-    end
-  end
-end
 
-describe "get manifest, filtering" do
-  before(:all) do
-    wait_for_bundle_to_post(File.read('spec/data/malware_bundle.json'))
-  end
-
-  path = manifest_path + "?match[type]=foo"
-  describe "#{path} filtering negative cases" do
-    context 'with basic auth' do
-      context 'with valid accept header' do
-        context 'with invalid filter' do
-          headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
-          include_examples "resource not found", get_with_auth(path, headers)
-        end
-      end
-    end
-  end
-
-  path = manifest_path + "?match[type]=malware"
-  describe "#{path} filtering positive cases" do
-    context 'with basic auth' do
-      context 'with valid accept header' do
         context 'with valid type filter' do
           headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
-          response = get_with_auth(path, headers)
+          response = get_with_auth(manifest_path + "?match[type]=malware", headers)
           include_examples "manifest resource", response
 
           resource = JSON.parse(response.body)
           it 'contains one object' do
             expect(resource['objects'].size).to eq 1
           end
-
-          include_examples "manifest entry resource", resource['objects'].first
         end
+     end
+
+      context 'with valid headers, no space' do
+        headers = {'Accept' => TAXII_ACCEPT_WITHOUT_SPACE}
+        response = get_with_auth(manifest_path, headers)
+        include_examples "manifest resource, no pagination", response
       end
     end
   end

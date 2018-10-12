@@ -1,12 +1,8 @@
 require 'spec_helper'
 require 'shared'
 
-describe "get status" do
-  response = post_a_bundle(File.read('spec/data/malware_bundle.json'))
-  status = response.body
-  test_status_path = status_path + "#{JSON.parse(status)['id']}/"
-
-  describe "get #{test_status_path} negative cases" do
+describe "status, negative cases" do
+  context 'when http get' do
     context 'with no basic auth' do
       response = get_no_auth(test_status_path)
       include_examples "unauthorized", response
@@ -31,8 +27,10 @@ describe "get status" do
       end
     end
   end
+end
 
-  describe "get #{test_status_path} positive cases" do
+describe "status, positive cases" do
+  context 'when http get' do
     context 'with basic auth' do
       context 'with valid headers, with space' do
         headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
