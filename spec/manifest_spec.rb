@@ -4,49 +4,34 @@ require 'shared'
 describe "manifest, negative cases" do
   context 'when http get' do
     context 'with no basic auth' do
-      response = get_no_auth(manifest_path)
-      include_examples "unauthorized", response
+      include_examples "unauthorized", get_no_auth(manifest_path)
     end
 
     context 'with basic auth' do
       context 'with no accept header' do
-        response = get_with_auth(manifest_path)
-        include_examples "invalid media type", response
+        include_examples "invalid media type", get_with_auth(manifest_path)
       end
 
       context 'with invalid accept header' do
-        headers = {'Accept' => 'invalid'}
-        response = get_with_auth(manifest_path, headers)
-        include_examples "invalid media type", response
+        include_examples "invalid media type", get_with_auth(manifest_path, {'Accept' => 'invalid'})
       end
 
       context 'with invalid api_root' do
-        headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
-        response = get_with_auth('/does_not_exist/', headers)
-        include_examples "resource not found", response
+        include_examples "resource not found", get_with_auth('/does_not_exist/', {'Accept' => TAXII_ACCEPT_WITH_SPACE})
       end
     end
 
     context 'with valid accept header' do
       context 'with invalid range' do
-        headers = {
-          'Accept' => TAXII_ACCEPT_WITH_SPACE,
-          'Range' => 'items 10-0'
-        }
-        response = get_with_auth(manifest_path, headers)
-        include_examples "range not satisfiable", response
+        headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
 
-        headers = {
-          'Accept' => TAXII_ACCEPT_WITH_SPACE,
-          'Range' => '0-0'
-        }
-        response = get_with_auth(manifest_path, headers)
-        include_examples "range not satisfiable", response
+        include_examples "range not satisfiable", get_with_auth(manifest_path, headers.merge({'Range' => 'items 10-0'}))
+        include_examples "range not satisfiable", get_with_auth(manifest_path, headers.merge({'Range' => '0-0'}))
       end
 
       context 'with invalid filter' do
-        headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
-        include_examples "resource not found", get_with_auth(manifest_path + "?match[type]=foo", headers)
+        include_examples "resource not found",
+          get_with_auth(manifest_path + "?match[type]=foo", {'Accept' => TAXII_ACCEPT_WITH_SPACE})
       end
     end
   end
@@ -57,39 +42,36 @@ describe "manifest, positive cases" do
     context 'with basic auth' do
       context 'with valid headers, with space' do
         headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
-        response = get_with_auth(manifest_path, headers)
-        include_examples "manifest resource, no pagination", response
+
+        include_examples "manifest resource, no pagination", get_with_auth(manifest_path, headers)
 
         context 'with valid range' do
-          headers = {
-            'Accept' => TAXII_ACCEPT_WITH_SPACE,
-            'Range' => 'items 0-0'
-          }
-          response = get_with_auth(manifest_path, headers)
+          response = get_with_auth(manifest_path, headers.merge({'Range' => 'items 0-0'}))
           include_examples "manifest resource, with pagination", response
 
-          resource = JSON.parse(response.body)
           it 'contains one object' do
+            resource = JSON.parse(response.body)
             expect(resource['objects'].size).to eq 1
           end
         end
 
         context 'with valid type filter' do
-          headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
-          response = get_with_auth(manifest_path + "?match[type]=malware", headers)
+          response = get_with_auth(
+            manifest_path + "?match[type]=malware",
+            headers.merge({'Accept' => TAXII_ACCEPT_WITH_SPACE})
+          )
           include_examples "manifest resource", response
 
-          resource = JSON.parse(response.body)
           it 'contains one object' do
+            resource = JSON.parse(response.body)
             expect(resource['objects'].size).to eq 1
           end
         end
      end
 
       context 'with valid headers, no space' do
-        headers = {'Accept' => TAXII_ACCEPT_WITHOUT_SPACE}
-        response = get_with_auth(manifest_path, headers)
-        include_examples "manifest resource, no pagination", response
+        include_examples "manifest resource, no pagination",
+          get_with_auth(manifest_path, {'Accept' => TAXII_ACCEPT_WITHOUT_SPACE})
       end
     end
   end

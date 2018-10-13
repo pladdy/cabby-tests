@@ -3,6 +3,11 @@ require 'logger'
 require 'net/http'
 require 'net/https'
 
+TAXII_ACCEPT_WITH_SPACE = 'application/vnd.oasis.taxii+json; version=2.0'
+TAXII_ACCEPT_WITHOUT_SPACE = 'application/vnd.oasis.taxii+json;version=2.0'
+STIX_ACCEPT_WITH_SPACE = 'application/vnd.oasis.stix+json; version=2.0'
+STIX_ACCEPT_WITHOUT_SPACE = 'application/vnd.oasis.stix+json;version=2.0'
+
 module Helpers
 
   def log

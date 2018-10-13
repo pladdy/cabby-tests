@@ -9,46 +9,36 @@ describe "objects, negative cases" do
 
   context 'when http get' do
     context 'with no basic auth' do
-      response = get_no_auth(objects_path)
-      include_examples "unauthorized", response
+      include_examples "unauthorized", get_no_auth(objects_path)
     end
 
     context 'with basic auth' do
       context 'with no accept header' do
-        response = get_with_auth(objects_path)
-        include_examples "invalid media type", response
+        include_examples "invalid media type", get_with_auth(objects_path)
       end
 
       context 'with invalid accept header' do
-        response = get_with_auth(objects_path, {'Accept' => 'invalid'})
-        include_examples "invalid media type", response
+        include_examples "invalid media type", get_with_auth(objects_path, {'Accept' => 'invalid'})
       end
 
       context 'with valid accept header' do
         context 'with invalid api_root' do
-          response = get_with_auth('/does_not_exist/', {'Accept' => STIX_ACCEPT_WITH_SPACE})
-          include_examples "resource not found", response
+          include_examples "resource not found", get_with_auth('/does_not_exist/', {'Accept' => STIX_ACCEPT_WITH_SPACE})
         end
 
         context 'with invalid range' do
-          headers = {
-            'Accept' => STIX_ACCEPT_WITH_SPACE,
-            'Range' => 'items 10-0'
-          }
-          response = get_with_auth(objects_path, headers)
-          include_examples "range not satisfiable", response
+          headers = {'Accept' => STIX_ACCEPT_WITH_SPACE}
 
-          headers = {
-            'Accept' => STIX_ACCEPT_WITH_SPACE,
-            'Range' => '0-0'
-          }
-          response = get_with_auth(objects_path, headers)
-          include_examples "range not satisfiable", response
+          include_examples "range not satisfiable",
+            get_with_auth(objects_path, headers.merge({'Range' => 'items 10-0'}))
+
+          include_examples "range not satisfiable",
+            get_with_auth(objects_path, headers.merge({'Range' => '0-0'}))
         end
 
         context 'with invalid filter' do
-          headers = {'Accept' => STIX_ACCEPT_WITH_SPACE}
-          include_examples "resource not found", get_with_auth(objects_path + "?match[type]=foo", headers)
+          include_examples "resource not found",
+            get_with_auth(objects_path + "?match[type]=foo", {'Accept' => STIX_ACCEPT_WITH_SPACE})
         end
       end
     end
@@ -58,33 +48,30 @@ describe "objects, negative cases" do
 
   context 'when http get' do
     context 'with no basic auth' do
-      response = post_no_auth(objects_path)
-      include_examples "unauthorized", response
+      include_examples "unauthorized", post_no_auth(objects_path)
     end
 
     context 'with basic auth' do
       context 'with no accept header' do
-        response = post_with_auth(objects_path)
-        include_examples "invalid media type", response
+        include_examples "invalid media type", post_with_auth(objects_path)
       end
 
       context 'with invalid accept header' do
-        headers = {'Accept' => 'invalid', 'Content-Type' => STIX_ACCEPT_WITH_SPACE}
-        response = post_with_auth(objects_path, headers)
-        include_examples "invalid media type", response
+        include_examples "invalid media type",
+          post_with_auth(objects_path, {'Accept' => 'invalid', 'Content-Type' => STIX_ACCEPT_WITH_SPACE})
       end
 
       context 'with valid accept header' do
+        headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
+
         context 'with invalid api_root' do
-          headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE, 'Content-Type' => STIX_ACCEPT_WITH_SPACE}
-          response = post_with_auth('/does_not_exist/', headers)
-          include_examples "resource not found", response
+          include_examples "resource not found",
+            post_with_auth('/does_not_exist/', headers.merge({'Content-Type' => STIX_ACCEPT_WITH_SPACE}))
         end
 
         context 'with invalid content-type header' do
-          headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE, 'Content-Type' => 'invalid'}
-          response = post_with_auth(objects_path, headers)
-          include_examples "invalid media type", response
+          include_examples "invalid media type",
+            post_with_auth(objects_path, headers.merge({'Content-Type' => 'invalid'}))
         end
       end
     end
@@ -94,16 +81,14 @@ end
 describe "objects, positive cases" do
   context 'when http get' do
     context 'with basic auth' do
+      headers = {'Accept' => STIX_ACCEPT_WITH_SPACE}
+
       context 'with valid accept header, with space' do
-        response = get_with_auth(objects_path, {'Accept' => STIX_ACCEPT_WITH_SPACE})
-        include_examples "stix bundle resource, no pagination", response
+        include_examples "stix bundle resource, no pagination",
+          get_with_auth(objects_path, headers)
 
         context 'with valid range' do
-          headers = {
-            'Accept' => STIX_ACCEPT_WITH_SPACE,
-            'Range' => 'items 0-0'
-          }
-          response = get_with_auth(objects_path, headers)
+          response = get_with_auth(objects_path, headers.merge({'Range' => 'items 0-0'}))
           include_examples "stix bundle resource, with pagination", response
 
           resource = JSON.parse(response.body)
@@ -114,7 +99,6 @@ describe "objects, positive cases" do
 
         context 'with valid type filter' do
           context 'when type fiter = malware' do
-            headers = {'Accept' => STIX_ACCEPT_WITH_SPACE}
             response = get_with_auth(objects_path + "?match[type]=malware", headers)
 
             resource = JSON.parse(response.body)
@@ -128,8 +112,7 @@ describe "objects, positive cases" do
       end
 
       context 'with valid accept header, no space' do
-        response = get_with_auth(objects_path, {'Accept' => STIX_ACCEPT_WITHOUT_SPACE})
-        include_examples "stix bundle resource, no pagination", response
+        include_examples "stix bundle resource, no pagination", get_with_auth(objects_path, headers)
       end
     end
   end
@@ -140,14 +123,12 @@ describe "objects, positive cases" do
     context 'with basic auth' do
       context 'with valid headers, with space' do
         headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE, 'Content-Type' => STIX_ACCEPT_WITH_SPACE}
-        response = post_with_auth(objects_path, headers, payload)
-        include_examples "status resource after post", response
+        include_examples "status resource after post", post_with_auth(objects_path, headers, payload)
       end
 
       context 'with valid headers, no space' do
         headers = {'Accept' => TAXII_ACCEPT_WITHOUT_SPACE, 'Content-Type' => STIX_ACCEPT_WITHOUT_SPACE}
-        response = post_with_auth(objects_path, headers, payload)
-        include_examples "status resource after post", response
+        include_examples "status resource after post", post_with_auth(objects_path, headers, payload)
       end
     end
   end
