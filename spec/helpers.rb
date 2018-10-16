@@ -60,6 +60,7 @@ module Helpers
 
   def https(uri)
     http = Net::HTTP.new(uri.host, uri.port)
+    http.ssl_version = :TLSv1_2
     http.use_ssl = true
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
     return http
@@ -87,6 +88,18 @@ module Helpers
     with_headers!(request, headers)
     request.body = payload
     return response(uri, request)
+  end
+
+  def request_with_tls(tls_version)
+    uri = path_to_uri(discovery_path)
+    http = Net::HTTP.new(uri.host, uri.port)
+    http.ssl_version = tls_version
+    http.use_ssl = true
+    http.verify_mode = OpenSSL::SSL::VERIFY_NONE
+
+    request = with_auth(Net::HTTP::Get.new(uri), ENV['TAXII_USER'], ENV['TAXII_PASSWORD'])
+    with_headers!(request, {'Accept' => TAXII_ACCEPT_WITH_SPACE})
+    http.start { |https| https.request request }
   end
 
   def response(uri, req, payload = nil)
