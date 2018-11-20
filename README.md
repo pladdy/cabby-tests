@@ -12,7 +12,11 @@ Clone repository
 ## Troubleshooting on the VM
 Reference: https://www.digitalocean.com/community/tutorials/how-to-use-journalctl-to-view-and-manipulate-systemd-logs
 ```sh
+# tail the log for cabby
 sudo journalctl -u cabby -f
+
+# pipe it to less
+sudo journalctl -u cabby | less
 ```
 
 ## Resources
