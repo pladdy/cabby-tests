@@ -3,11 +3,10 @@
 all: dependencies deploy test
 
 cabby:
-	cp -r /Users/pladdypants/dev/go/src/github.com/pladdy/cabby $@
-	#git clone https://github.com/pladdy/cabby.git
+	git clone https://github.com/pladdy/$@
 
 build: cabby
-	cd $< && make build-debian #&& vagrant destroy -f
+	cd $< && make build-debian && vagrant destroy -f
 
 clean:
 	vagrant destroy -f
