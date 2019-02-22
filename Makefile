@@ -13,7 +13,7 @@ clean:
 	cd cabby && vagrant destroy -f
 	rm -rf cabby vendor
 
-docker:
+docker: cabby
 	docker build --tag=cabby-test .
 	# gross, assuming port 1234 for testing even though it's configurable in the app...
 	docker run -d -p 1234:1234 cabby-test

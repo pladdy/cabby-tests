@@ -3,11 +3,18 @@
 My goal is to have "interoperability" and acceptance testing done in this repository.
 
 ## Setup
-Clone repository
+Clone repository then
+
 `make`
 
 ## Test (after setup)
-`make rspec` or `make test` <- this will try to deploy
+`make rspec` or `make test`
+
+### Test with Vagrant
+`make deploy test`
+
+### Test with Docker
+`make test-on-docker`
 
 ## Troubleshooting on the VM
 Reference: https://www.digitalocean.com/community/tutorials/how-to-use-journalctl-to-view-and-manipulate-systemd-logs
