@@ -4,6 +4,7 @@
 #
 # References:
 # Golang container: https://github.com/docker-library/golang/blob/master/1.11/stretch/Dockerfile
+#   - this container is ubuntu...should i have used a go one?
 # Deleting images: https://forums.docker.com/t/how-to-delete-cache/5753
 # Docker in travis-ci: https://docs.travis-ci.com/user/docker/
 #
