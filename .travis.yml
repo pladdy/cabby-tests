@@ -3,5 +3,8 @@ language: ruby
 rvm:
   - 2.5
 
+services:
+  - docker
+
 script:
-  - make
+  - make test-on-docker
