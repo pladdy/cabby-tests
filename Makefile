@@ -1,37 +1,27 @@
-.PHONY: all build cabby clean deploy deploy-again rspec test
+.PHONY: all cabby clean deploy rspec test
+
+BUILD_BRANCH ?= master
+CONTAINER_NAME = cabby-test-container
 
 all: dependencies deploy test
 
-build: cabby
-	cd $< && make build-debian && vagrant destroy -f
-
-cabby:
-	git clone https://github.com/pladdy/$@
+cabby: clean
+	git clone --single-branch --branch $(BUILD_BRANCH) https://github.com/pladdy/$@
 
 clean:
-	vagrant destroy -f
-	cd cabby && vagrant destroy -f
+	-docker stop $(CONTAINER_NAME)
+	-docker rm -f $(CONTAINER_NAME)
 	rm -rf cabby vendor
-
-docker: cabby
-	docker build --tag=cabby-test .
-	# gross, assuming port 1234 for testing even though it's configurable in the app...
-	docker run -d -p 1234:1234 cabby-test
 
 dependencies:
 	gem install bundler
 
-deploy: build
-	vagrant up
-	vagrant provision --provision-with restart-cabby
-
-deploy-again:
-	vagrant provision
+deploy: cabby
+	docker build --tag=cabby-test .
+	docker run --name $(CONTAINER_NAME) -d -p 1234:1234 cabby-test
 
 rspec test: vendor
 	bundle exec rspec spec/
-
-test-on-docker: dependencies docker test
 
 vendor:
 	bundle install --path $@

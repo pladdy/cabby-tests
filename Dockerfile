@@ -1,6 +1,8 @@
 ##
-# Goal is to set up a container to make the cabby package on ubuntu (it's a hack because building on a mac doesn't work
-# with sqlite for reasons).
+# Goal is to set up a container to
+#   - make the cabby package on ubuntu (it's a hack because building on a mac doesn't work
+#     with sqlite for reasons).
+#   - run cabby in the container
 #
 # References:
 # Golang container: https://github.com/docker-library/golang/blob/master/1.11/stretch/Dockerfile
@@ -12,15 +14,24 @@ FROM ubuntu:xenial
 
 WORKDIR /opt/go/src/cabby
 
+# assume cabby source is available
 COPY cabby/ /opt/go/src/cabby
 
 ENV GOPATH /opt/go
-ENV PATH /usr/lib/go-1.10/bin/:$PATH
+ENV GOVERSION 1.13
+ENV PATH /usr/lib/go-$GOVERSION/bin/:$PATH
+
+# use unofficial debian packages to install golang
+# https://github.com/golang/go/wiki/Ubuntu
+RUN set -eux; \
+  apt-get update; \
+  apt-get install -y software-properties-common; \
+  add-apt-repository ppa:longsleep/golang-backports; \
+  apt-get update;
 
 # install dependencies
 RUN set -eux; \
-  apt-get update; \
-  apt-get install -y build-essential git golang-1.10 jq make ruby-dev rsyslog sqlite sudo; \
+  apt-get install -y build-essential git golang-$GOVERSION jq make ruby-dev rsyslog sqlite sudo; \
   gem install --no-ri --no-doc fpm; \
   mkdir -p "$GOPATH/src" "$GOPATH/bin/"
 
@@ -29,11 +40,12 @@ WORKDIR /opt/go/src/cabby
 RUN set -eux; \
   make cabby.deb
 
-# install and setup
+# install cabby and do a dev setup (setup script is in the cabby repo)
 RUN set -eux; \
   dpkg -i cabby.deb; \
   vagrant/setup-cabby
 
 # run app to test
+# gross, assume 1234 is the configured cabby port...by default it is now, but assumed
 EXPOSE 1234
 CMD /usr/bin/cabby
