@@ -25,13 +25,15 @@ ENV PATH /usr/lib/go-$GOVERSION/bin/:$PATH
 # https://github.com/golang/go/wiki/Ubuntu
 RUN set -eux; \
   apt-get update; \
-  apt-get install -y software-properties-common; \
+  apt-get install -y --no-install-recommends software-properties-common; \
   add-apt-repository ppa:longsleep/golang-backports; \
-  apt-get update;
+  apt-get update
 
 # install dependencies
 RUN set -eux; \
-  apt-get install -y build-essential git golang-$GOVERSION jq make ruby-dev rsyslog sqlite sudo; \
+  apt-get install -y --no-install-recommends build-essential git golang-$GOVERSION jq make ruby-dev rsyslog sqlite sudo; \
+  apt-get clean; \
+  rm -rf /var/lib/apt/lists/*; \
   gem install --no-ri --no-doc fpm; \
   mkdir -p "$GOPATH/src" "$GOPATH/bin/"
 
