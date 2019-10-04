@@ -3,22 +3,18 @@
 #   - make the cabby package on ubuntu (it's a hack because building on a mac doesn't work
 #     with sqlite for reasons).
 #   - run cabby in the container
-#
-# References:
-# Golang container: https://github.com/docker-library/golang/blob/master/1.11/stretch/Dockerfile
-#   - this container is ubuntu...should i have used a go one?
-# Deleting images: https://forums.docker.com/t/how-to-delete-cache/5753
-# Docker in travis-ci: https://docs.travis-ci.com/user/docker/
-#
 FROM ubuntu:xenial
 
-WORKDIR /opt/go/src/cabby
+ARG CABBY_DIR=/opt/go/src/cabby
+ARG GOVERSION=1.13
+
+WORKDIR $CABBY_DIR
+COPY ./ $CABBY_DIR
 
 # assume cabby source is available
-COPY cabby/ /opt/go/src/cabby
+COPY cabby/ $CABBY_DIR
 
 ENV GOPATH /opt/go
-ENV GOVERSION 1.13
 ENV PATH /usr/lib/go-$GOVERSION/bin/:$PATH
 
 # use unofficial debian packages to install golang
@@ -38,7 +34,6 @@ RUN set -eux; \
   mkdir -p "$GOPATH/src" "$GOPATH/bin/"
 
 # create debian
-WORKDIR /opt/go/src/cabby
 RUN set -eux; \
   make cabby.deb
 
@@ -48,6 +43,5 @@ RUN set -eux; \
   vagrant/setup-cabby
 
 # run app to test
-# gross, assume 1234 is the configured cabby port...by default it is now, but assumed
 EXPOSE 1234
 CMD /usr/bin/cabby
