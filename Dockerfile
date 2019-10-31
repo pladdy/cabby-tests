@@ -5,8 +5,8 @@
 #   - run cabby in the container
 FROM ubuntu:xenial
 
-ARG CABBY_DIR=/opt/go/src/cabby
-ARG GOVERSION=1.13
+ARG CABBY_DIR
+ARG GOVERSION
 
 WORKDIR $CABBY_DIR
 COPY ./ $CABBY_DIR

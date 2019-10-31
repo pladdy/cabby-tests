@@ -19,7 +19,7 @@ describe "object, negative cases" do
       context 'with valid accept header' do
         headers = {'Accept' => STIX_ACCEPT_WITH_SPACE}
 
-        context 'with invalid version filter ' do
+        context 'with invalid version filter' do
           response = get_with_auth(test_object_path + "?match[version]=foo", headers)
 
           it 'defaults to last object' do
@@ -44,7 +44,7 @@ describe "object, positive cases" do
       context 'with valid headers, with space' do
         headers = {'Accept' => STIX_ACCEPT_WITH_SPACE}
         response = get_with_auth(test_object_path, headers)
-        
+
         include_examples "stix bundle resource, no pagination", response
 
         context 'with valid version filter' do

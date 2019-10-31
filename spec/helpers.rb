@@ -36,6 +36,10 @@ module Helpers
     return '/' + ENV['API_ROOT_PATH'] + '/collections/' + collection_id + '/manifest/'
   end
 
+  def object_path(collection_id = ENV['COLLECTION_ID'], object_id = ENV['OBJECT_ID'])
+    return '/' + ENV['API_ROOT_PATH'] + '/collections/' + collection_id + '/objects/' + object_d
+  end
+
   def objects_path(collection_id = ENV['COLLECTION_ID'])
     return '/' + ENV['API_ROOT_PATH'] + '/collections/' + collection_id + '/objects/'
   end
@@ -84,9 +88,11 @@ module Helpers
 
   def post_with_auth(path, headers = {}, payload = nil)
     uri = path_to_uri(path)
+    puts "Post uri is #{uri}"
     request = with_auth(Net::HTTP::Post.new(uri), ENV['TAXII_USER'], ENV['TAXII_PASSWORD'])
     with_headers!(request, headers)
     request.body = payload
+    puts "  Payload is #{request.body}"
     return response(uri, request)
   end
 
@@ -113,6 +119,8 @@ module Helpers
 
     (0..2).each do |i|
       status = post_a_bundle(bundle)
+      puts status
+      puts status_path + "#{JSON.parse(status.body)['id']}/"
       status = get_with_auth(status_path + "#{JSON.parse(status.body)['id']}/", {'Accept' => TAXII_ACCEPT_WITH_SPACE})
 
       if JSON.parse(status.body)['status'] == "complete"
@@ -140,24 +148,24 @@ module Helpers
 
   # resource helpers
 
-  def generate_object
+  def generate_object_path
     bundle = File.read('spec/data/malware_bundle.json')
     test_object = JSON.parse(bundle)['objects'].first
     return objects_path + "#{test_object['id']}/"
   end
 
-  def generate_status
+  def generate_status_path
     response = post_a_bundle(File.read('spec/data/malware_bundle.json'))
     status = response.body
     return status_path + "#{JSON.parse(status)['id']}/"
   end
 
   def test_object_path
-    @test_object_path ||= @test_object_path = generate_object
+    @test_object_path ||= @test_object_path = generate_object_path
   end
 
   def test_status_path
-    @test_status_path ||= @test_status_path = generate_status
+    @test_status_path ||= @test_status_path = generate_status_path
   end
 
   # validators

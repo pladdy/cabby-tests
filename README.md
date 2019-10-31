@@ -8,9 +8,8 @@ Install docker: [Docker](https://www.docker.com/products/docker-desktop)
 
 ## Setup
 
-Clone repository then
-
-`make`
+1. Clone repository
+1. [Install ruby](https://www.ruby-lang.org/en/downloads/)
 
 ## How to test
 
@@ -19,10 +18,6 @@ Clone repository then
 ## How to test cabby branches
 
 The default `make` state is to test against the master branch of the cabby repository.  To test against a release branch you can run: `BUILD_BRANCH=<branch name> make`
-
-NOTE: For older branches, like `release/2.0/1.0.0`, you might have to modify the Dockerfile to install older versions of golang.
-
-You can check the .travis.yml file for a list of tested golang versions in the repository for the branch you want to test
 
 [Example .travis.yml file](https://github.com/pladdy/cabby/blob/671d621cce553dbd31d3734d4dba8f35b36feff5/.travis.yml)
 
