@@ -14,11 +14,11 @@ describe "objects, negative cases" do
 
     context 'with basic auth' do
       context 'with no accept header' do
-        include_examples "invalid media type", get_with_auth(objects_path)
+        include_examples "not acceptable", get_with_auth(objects_path)
       end
 
       context 'with invalid accept header' do
-        include_examples "invalid media type", get_with_auth(objects_path, {'Accept' => 'invalid'})
+        include_examples "not acceptable", get_with_auth(objects_path, {'Accept' => 'invalid'})
       end
 
       context 'with valid accept header' do
@@ -53,11 +53,11 @@ describe "objects, negative cases" do
 
     context 'with basic auth' do
       context 'with no accept header' do
-        include_examples "invalid media type", post_with_auth(objects_path)
+        include_examples "not acceptable", post_with_auth(objects_path)
       end
 
       context 'with invalid accept header' do
-        include_examples "invalid media type",
+        include_examples "not acceptable",
           post_with_auth(objects_path, {'Accept' => 'invalid', 'Content-Type' => STIX_ACCEPT_WITH_SPACE})
       end
 
@@ -70,7 +70,7 @@ describe "objects, negative cases" do
         end
 
         context 'with invalid content-type header' do
-          include_examples "invalid media type",
+          include_examples "not acceptable",
             post_with_auth(objects_path, headers.merge({'Content-Type' => 'invalid'}))
         end
       end

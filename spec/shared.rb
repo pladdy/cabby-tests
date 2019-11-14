@@ -59,7 +59,7 @@ shared_examples "collections resource, no pagination" do |response|
 end
 
 shared_examples "collections resource, with pagination" do |response|
-  include_examples "status partial", response
+  include_examples "status ok", response
   include_examples "collections resource", response
 end
 
@@ -108,11 +108,11 @@ shared_examples "header 'x-taxii-date-added-last' is set" do |response|
   end
 end
 
-shared_examples "invalid media type" do |response|
-  context 'when content-type is invalid' do
+shared_examples "not acceptable" do |response|
+  context 'when accept is invalid' do
     include_examples "error resource", response
 
-    status = "415"
+    status = "406"
     it "returns a #{status} status code" do
       expect(response.code).to eq(status)
     end
@@ -145,17 +145,8 @@ shared_examples "manifest resource, no pagination" do |response|
 end
 
 shared_examples "manifest resource, with pagination" do |response|
-  include_examples "status partial", response
+  include_examples "status ok", response
   include_examples "manifest resource", response
-end
-
-shared_examples "range not satisfiable" do |response|
-  include_examples "error resource", response
-
-  status = "416"
-  it "returns a #{status} status code" do
-    expect(response.code).to eq(status)
-  end
 end
 
 shared_examples "resource not found" do |response|
@@ -176,13 +167,6 @@ end
 
 shared_examples "status ok" do |response|
   status = "200"
-  it "returns a #{status} status code" do
-    expect(response.code).to eq(status)
-  end
-end
-
-shared_examples "status partial" do |response|
-  status = "206"
   it "returns a #{status} status code" do
     expect(response.code).to eq(status)
   end
@@ -243,7 +227,7 @@ shared_examples "stix bundle resource, no pagination" do |response|
 end
 
 shared_examples "stix bundle resource, with pagination" do |response|
-  include_examples "status partial", response
+  include_examples "status ok", response
   include_examples "stix bundle resource", response
 end
 
@@ -253,5 +237,16 @@ shared_examples "unauthorized" do |response|
   status = "401"
   it "returns a #{status} status code" do
     expect(response.code).to eq(status)
+  end
+end
+
+shared_examples "unsupported media type" do |response|
+  context 'when content-type is invalid' do
+    include_examples "error resource", response
+
+    status = "415"
+    it "returns a #{status} status code" do
+      expect(response.code).to eq(status)
+    end
   end
 end

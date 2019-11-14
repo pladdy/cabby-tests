@@ -9,15 +9,15 @@ describe "object, negative cases" do
 
     context 'with basic auth' do
       context 'with no accept header' do
-        include_examples "invalid media type", get_with_auth(test_object_path)
+        include_examples "not acceptable", get_with_auth(test_object_path)
       end
 
       context 'with invalid accept header' do
-        include_examples "invalid media type", get_with_auth(test_object_path, {'Accept' => 'invalid'})
+        include_examples "not acceptable", get_with_auth(test_object_path, {'Accept' => 'invalid'})
       end
 
       context 'with valid accept header' do
-        headers = {'Accept' => STIX_ACCEPT_WITH_SPACE}
+        headers = {'Accept' => TAXII_ACCEPT}
 
         context 'with invalid version filter' do
           response = get_with_auth(test_object_path + "?match[version]=foo", headers)
@@ -42,7 +42,7 @@ describe "object, positive cases" do
   context "when http get" do
     context 'with basic auth' do
       context 'with valid headers, with space' do
-        headers = {'Accept' => STIX_ACCEPT_WITH_SPACE}
+        headers = {'Accept' => TAXII_ACCEPT}
         response = get_with_auth(test_object_path, headers)
 
         include_examples "stix bundle resource, no pagination", response
@@ -74,7 +74,7 @@ describe "object, positive cases" do
 
       context 'with valid headers, no space' do
         include_examples "stix bundle resource, no pagination",
-          get_with_auth(test_object_path, {'Accept' => STIX_ACCEPT_WITHOUT_SPACE})
+          get_with_auth(test_object_path, {'Accept' => TAXII_ACCEPT})
       end
     end
   end

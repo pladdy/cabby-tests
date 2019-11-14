@@ -3,10 +3,9 @@ require 'logger'
 require 'net/http'
 require 'net/https'
 
-TAXII_ACCEPT_WITH_SPACE = 'application/vnd.oasis.taxii+json; version=2.0'
-TAXII_ACCEPT_WITHOUT_SPACE = 'application/vnd.oasis.taxii+json;version=2.0'
-STIX_ACCEPT_WITH_SPACE = 'application/vnd.oasis.stix+json; version=2.0'
-STIX_ACCEPT_WITHOUT_SPACE = 'application/vnd.oasis.stix+json;version=2.0'
+TAXII_ACCEPT = 'application/vnd.oasis.taxii+json'
+TAXII_ACCEPT_VERSION_WITH_SPACE = 'application/vnd.oasis.taxii+json; version=2.1'
+TAXII_ACCEPT_VERSION_WITHOUT_SPACE = 'application/vnd.oasis.taxii+json;version=2.1'
 
 module Helpers
 
@@ -29,7 +28,7 @@ module Helpers
   end
 
   def discovery_path
-    return '/taxii/'
+    return '/taxii2/'
   end
 
   def manifest_path(collection_id = ENV['COLLECTION_ID'])
@@ -77,8 +76,9 @@ module Helpers
   end
 
   def post_a_bundle(bundle)
-    headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE, 'Content-Type' => STIX_ACCEPT_WITH_SPACE}
-    return post_with_auth(objects_path, headers, bundle)
+    headers = {'Accept' => TAXII_ACCEPT, 'Content-Type' => TAXII_ACCEPT}
+    status = post_with_auth(objects_path, headers, bundle)
+    return status
   end
 
   def post_no_auth(path, payload = nil)
@@ -88,11 +88,9 @@ module Helpers
 
   def post_with_auth(path, headers = {}, payload = nil)
     uri = path_to_uri(path)
-    puts "Post uri is #{uri}"
     request = with_auth(Net::HTTP::Post.new(uri), ENV['TAXII_USER'], ENV['TAXII_PASSWORD'])
     with_headers!(request, headers)
     request.body = payload
-    puts "  Payload is #{request.body}"
     return response(uri, request)
   end
 
@@ -104,7 +102,7 @@ module Helpers
     http.verify_mode = OpenSSL::SSL::VERIFY_NONE
 
     request = with_auth(Net::HTTP::Get.new(uri), ENV['TAXII_USER'], ENV['TAXII_PASSWORD'])
-    with_headers!(request, {'Accept' => TAXII_ACCEPT_WITH_SPACE})
+    with_headers!(request, {'Accept' => TAXII_ACCEPT})
     http.start { |https| https.request request }
   end
 
@@ -119,9 +117,7 @@ module Helpers
 
     (0..2).each do |i|
       status = post_a_bundle(bundle)
-      puts status
-      puts status_path + "#{JSON.parse(status.body)['id']}/"
-      status = get_with_auth(status_path + "#{JSON.parse(status.body)['id']}/", {'Accept' => TAXII_ACCEPT_WITH_SPACE})
+      status = get_with_auth(status_path + "#{JSON.parse(status.body)['id']}/", {'Accept' => TAXII_ACCEPT})
 
       if JSON.parse(status.body)['status'] == "complete"
         log.info("bundle posted")

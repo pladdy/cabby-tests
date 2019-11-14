@@ -13,6 +13,6 @@ RSpec.configure do |config|
   # or objects suits were run.  this created an initial failure because no objects are saved in the db.  however,
   # the commands would run after the first suite failed and if you ran `bundle exec rspec spec` again tests would
   # pass.  wat?
-  wait_for_bundle_to_post(File.read('spec/data/malware_bundle.json'))
-  wait_for_bundle_to_post(File.read('spec/data/versions_bundle.json'))
+  wait_for_bundle_to_post(File.read('spec/data/malware_envelope.json'))
+  wait_for_bundle_to_post(File.read('spec/data/versions_envelope.json'))
 end

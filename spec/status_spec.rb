@@ -9,11 +9,11 @@ describe "status, negative cases" do
 
     context 'with basic auth' do
       context 'with no accept header' do
-        include_examples "invalid media type", get_with_auth(test_status_path)
+        include_examples "not acceptable", get_with_auth(test_status_path)
       end
 
       context 'with invalid accept header' do
-        include_examples "invalid media type", get_with_auth(test_status_path, {'Accept' => 'invalid'})
+        include_examples "not acceptable", get_with_auth(test_status_path, {'Accept' => 'invalid'})
       end
 
       context 'with invalid api_root' do
