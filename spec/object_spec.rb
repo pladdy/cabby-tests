@@ -27,7 +27,7 @@ describe "object, negative cases" do
             expect(resource['objects'].size).to eq 1
           end
 
-          include_examples "stix bundle resource, no pagination", response
+          include_examples "envelope resource, no pagination", response
         end
 
         context 'with invalid api_root' do
@@ -41,41 +41,39 @@ end
 describe "object, positive cases" do
   context "when http get" do
     context 'with basic auth' do
-      context 'with valid headers, with space' do
+      context 'with valid version filter' do
         headers = {'Accept' => TAXII_ACCEPT}
-        response = get_with_auth(test_object_path, headers)
+        context 'when version = last' do
+          response = get_with_auth(test_object_path + "?match[version]=last", headers)
 
-        include_examples "stix bundle resource, no pagination", response
-
-        context 'with valid version filter' do
-          context 'when version = last' do
-            response = get_with_auth(test_object_path + "?match[version]=last", headers)
-
-            resource = JSON.parse(response.body)
-            it 'contains last version' do
-              expect(resource['objects'].size).to eq 1
-            end
-
-            include_examples "stix bundle resource, no pagination", response
+          resource = JSON.parse(response.body)
+          it 'contains last version' do
+            expect(resource['objects'].size).to eq 1
           end
 
-          context 'when version = all' do
-            response = get_with_auth(test_object_path + "?match[version]=all", headers)
+          include_examples "envelope resource, no pagination", response
+        end
 
-            resource = JSON.parse(response.body)
-            it 'contains all versions' do
-              expect(resource['objects'].size).to eq 3
-            end
+        context 'when version = all' do
+          response = get_with_auth(test_object_path + "?match[version]=all", headers)
 
-            include_examples "stix bundle resource, no pagination", response
+          resource = JSON.parse(response.body)
+          it 'contains all versions' do
+            expect(resource['objects'].size).to eq 3
           end
+
+          include_examples "envelope resource, no pagination", response
         end
       end
+    end
 
-      context 'with valid headers, no space' do
-        include_examples "stix bundle resource, no pagination",
-          get_with_auth(test_object_path, {'Accept' => TAXII_ACCEPT})
-      end
+    context 'with valid accept headers' do
+      include_examples "envelope resource, no pagination",
+        get_with_auth(test_object_path, {'Accept' => TAXII_ACCEPT})
+      include_examples "envelope resource, no pagination",
+        get_with_auth(test_object_path, {'Accept' => TAXII_ACCEPT_VERSION_WITH_SPACE})
+      include_examples "envelope resource, no pagination",
+        get_with_auth(test_object_path, {'Accept' => TAXII_ACCEPT_VERSION_WITHOUT_SPACE})
     end
   end
 end

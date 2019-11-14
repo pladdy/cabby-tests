@@ -75,9 +75,9 @@ module Helpers
     return uri
   end
 
-  def post_a_bundle(bundle)
+  def post_an_envelope(envelope)
     headers = {'Accept' => TAXII_ACCEPT, 'Content-Type' => TAXII_ACCEPT}
-    status = post_with_auth(objects_path, headers, bundle)
+    status = post_with_auth(objects_path, headers, envelope)
     return status
   end
 
@@ -112,24 +112,24 @@ module Helpers
     end
   end
 
-  def wait_for_bundle_to_post(bundle)
+  def wait_for_envelope_to_post(envelope)
     status = nil
 
     (0..2).each do |i|
-      status = post_a_bundle(bundle)
+      status = post_an_envelope(envelope)
       status = get_with_auth(status_path + "#{JSON.parse(status.body)['id']}/", {'Accept' => TAXII_ACCEPT})
 
       if JSON.parse(status.body)['status'] == "complete"
-        log.info("bundle posted")
+        log.info("envelope posted")
         return
       else
         sleep_seconds = i / 10.to_f
-        log.warn("bundle not posted yet, sleeping #{sleep_seconds} seconds")
+        log.warn("envelope not posted yet, sleeping #{sleep_seconds} seconds")
         sleep(sleep_seconds)
       end
     end
 
-    log.error("failed to post bundle; status: #{status.body}")
+    log.error("failed to post envelope; status: #{status.body}")
   end
 
   def with_auth(request, user, pass)
@@ -145,13 +145,13 @@ module Helpers
   # resource helpers
 
   def generate_object_path
-    bundle = File.read('spec/data/malware_bundle.json')
-    test_object = JSON.parse(bundle)['objects'].first
+    envelope = File.read('spec/data/malware_envelope.json')
+    test_object = JSON.parse(envelope)['objects'].first
     return objects_path + "#{test_object['id']}/"
   end
 
   def generate_status_path
-    response = post_a_bundle(File.read('spec/data/malware_bundle.json'))
+    response = post_an_envelope(File.read('spec/data/malware_envelope.json'))
     status = response.body
     return status_path + "#{JSON.parse(status)['id']}/"
   end

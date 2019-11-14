@@ -1,12 +1,7 @@
 require 'spec_helper'
 require 'shared'
 
-# get
-
 describe "objects, negative cases" do
-
-  # get
-
   context 'when http get' do
     context 'with no basic auth' do
       include_examples "unauthorized", get_no_auth(objects_path)
@@ -23,30 +18,18 @@ describe "objects, negative cases" do
 
       context 'with valid accept header' do
         context 'with invalid api_root' do
-          include_examples "resource not found", get_with_auth('/does_not_exist/', {'Accept' => STIX_ACCEPT_WITH_SPACE})
-        end
-
-        context 'with invalid range' do
-          headers = {'Accept' => STIX_ACCEPT_WITH_SPACE}
-
-          include_examples "range not satisfiable",
-            get_with_auth(objects_path, headers.merge({'Range' => 'items 10-0'}))
-
-          include_examples "range not satisfiable",
-            get_with_auth(objects_path, headers.merge({'Range' => '0-0'}))
+          include_examples "resource not found", get_with_auth('/does_not_exist/', {'Accept' => TAXII_ACCEPT})
         end
 
         context 'with invalid filter' do
           include_examples "resource not found",
-            get_with_auth(objects_path + "?match[type]=foo", {'Accept' => STIX_ACCEPT_WITH_SPACE})
+            get_with_auth(objects_path + "?match[type]=foo", {'Accept' => TAXII_ACCEPT})
         end
       end
     end
   end
 
-  # post
-
-  context 'when http get' do
+  context 'when http post' do
     context 'with no basic auth' do
       include_examples "unauthorized", post_no_auth(objects_path)
     end
@@ -58,19 +41,19 @@ describe "objects, negative cases" do
 
       context 'with invalid accept header' do
         include_examples "not acceptable",
-          post_with_auth(objects_path, {'Accept' => 'invalid', 'Content-Type' => STIX_ACCEPT_WITH_SPACE})
+          post_with_auth(objects_path, {'Accept' => 'invalid', 'Content-Type' => TAXII_ACCEPT})
       end
 
       context 'with valid accept header' do
-        headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE}
+        headers = {'Accept' => TAXII_ACCEPT}
 
         context 'with invalid api_root' do
           include_examples "resource not found",
-            post_with_auth('/does_not_exist/', headers.merge({'Content-Type' => STIX_ACCEPT_WITH_SPACE}))
+            post_with_auth('/does_not_exist/', headers.merge({'Content-Type' => TAXII_ACCEPT}))
         end
 
         context 'with invalid content-type header' do
-          include_examples "not acceptable",
+          include_examples "unsupported media type",
             post_with_auth(objects_path, headers.merge({'Content-Type' => 'invalid'}))
         end
       end
@@ -81,15 +64,15 @@ end
 describe "objects, positive cases" do
   context 'when http get' do
     context 'with basic auth' do
-      headers = {'Accept' => STIX_ACCEPT_WITH_SPACE}
+      headers = {'Accept' => TAXII_ACCEPT}
 
       context 'with valid accept header, with space' do
-        include_examples "stix bundle resource, no pagination",
+        include_examples "envelope resource, no pagination",
           get_with_auth(objects_path, headers)
 
-        context 'with valid range' do
-          response = get_with_auth(objects_path, headers.merge({'Range' => 'items 0-0'}))
-          include_examples "stix bundle resource, with pagination", response
+        context 'with valid limit' do
+          response = get_with_auth(objects_path + "?limit=1", headers)
+          include_examples "envelope resource, with pagination", response
 
           resource = JSON.parse(response.body)
           it 'contains one object' do
@@ -106,28 +89,27 @@ describe "objects, positive cases" do
               expect(resource['objects'].size).to eq 1
             end
 
-            include_examples "stix bundle resource, no pagination", response
+            include_examples "envelope resource, no pagination", response
           end
         end
       end
 
       context 'with valid accept header, no space' do
-        include_examples "stix bundle resource, no pagination", get_with_auth(objects_path, headers)
+        include_examples "envelope resource, no pagination", get_with_auth(objects_path, headers)
       end
     end
   end
 
   context 'when http post' do
-    payload = File.read('spec/data/malware_bundle.json')
+    payload = File.read('spec/data/malware_envelope.json')
 
     context 'with basic auth' do
-      context 'with valid headers, with space' do
-        headers = {'Accept' => TAXII_ACCEPT_WITH_SPACE, 'Content-Type' => STIX_ACCEPT_WITH_SPACE}
+      context 'with valid accept headers' do
+        headers = {'Accept' => TAXII_ACCEPT, 'Content-Type' => TAXII_ACCEPT}
         include_examples "status resource after post", post_with_auth(objects_path, headers, payload)
-      end
-
-      context 'with valid headers, no space' do
-        headers = {'Accept' => TAXII_ACCEPT_WITHOUT_SPACE, 'Content-Type' => STIX_ACCEPT_WITHOUT_SPACE}
+        headers = {'Accept' => TAXII_ACCEPT_VERSION_WITH_SPACE, 'Content-Type' => TAXII_ACCEPT}
+        include_examples "status resource after post", post_with_auth(objects_path, headers, payload)
+        headers = {'Accept' => TAXII_ACCEPT_VERSION_WITHOUT_SPACE, 'Content-Type' => TAXII_ACCEPT}
         include_examples "status resource after post", post_with_auth(objects_path, headers, payload)
       end
     end

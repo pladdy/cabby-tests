@@ -73,18 +73,32 @@ shared_examples "discovery resource" do |response|
   end
 end
 
+shared_examples "envelope resource" do |response|
+  resource = JSON.parse(response.body)
+
+  include_examples "header 'content-type' is taxii", response
+
+  it 'has at least one object' do
+    expect(resource['objects'].size).to be > 0
+  end
+end
+
+shared_examples "envelope resource, no pagination" do |response|
+  include_examples "status ok", response
+  include_examples "envelope resource", response
+end
+
+shared_examples "envelope resource, with pagination" do |response|
+  include_examples "status ok", response
+  include_examples "envelope resource", response
+end
+
 shared_examples "error resource" do |response|
   include_examples "header 'content-type' is taxii", response
 
   it 'has a title defined' do
     taxii_error = JSON.parse(response.body)
     expect(taxii_error['title'].size).to be > 0
-  end
-end
-
-shared_examples "header 'content-type' is stix" do |response|
-  it 'has header with a stix content type' do
-    expect(response.to_hash['content-type'].first).to match(/application\/vnd.oasis.stix\+json/)
   end
 end
 
@@ -205,30 +219,6 @@ end
 shared_examples "status resource after post" do |response|
   include_examples "status accepted", response
   include_examples "status resource", response
-end
-
-shared_examples "stix bundle resource" do |response|
-  resource = JSON.parse(response.body)
-
-  include_examples "header 'content-type' is stix", response
-
-  it 'has at least one object' do
-    expect(resource['objects'].size).to be > 0
-  end
-
-  it 'has a bundle type' do
-    expect(resource['type']).to eq('bundle')
-  end
-end
-
-shared_examples "stix bundle resource, no pagination" do |response|
-  include_examples "status ok", response
-  include_examples "stix bundle resource", response
-end
-
-shared_examples "stix bundle resource, with pagination" do |response|
-  include_examples "status ok", response
-  include_examples "stix bundle resource", response
 end
 
 shared_examples "unauthorized" do |response|
