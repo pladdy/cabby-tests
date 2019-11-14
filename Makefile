@@ -1,6 +1,6 @@
 .PHONY: all cabby clean rspec run test
 
-BUILD_BRANCH ?= release/2.0/1.0
+BUILD_BRANCH ?= master
 CONTAINER_NAME = cabby-test-container
 IMAGE_NAME = cabby-tester
 IMAGE_CABBY_DIR = /opt/go/src/cabby
