@@ -1,0 +1,12 @@
+{
+  "objects": [
+    {
+      "type": "malware",
+      "id": "malware--11dee0d4-6f7f-4aaa-80ea-9c1f17b5891b",
+      "created": "2019-04-06T20:07:09.000Z",
+      "modified": "2019-04-06T20:07:09.000Z",
+      "created_by_ref": "identity--a221f809-377b-45e0-aa1c-6a4751cae5ff",
+      "name": "Delete this malware"
+    }
+  ]
+}

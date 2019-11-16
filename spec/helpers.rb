@@ -36,7 +36,7 @@ module Helpers
   end
 
   def object_path(collection_id = ENV['COLLECTION_ID'], object_id = ENV['OBJECT_ID'])
-    return '/' + ENV['API_ROOT_PATH'] + '/collections/' + collection_id + '/objects/' + object_d
+    return objects_path + object_d
   end
 
   def objects_path(collection_id = ENV['COLLECTION_ID'])
@@ -52,6 +52,20 @@ module Helpers
   def get_no_auth(path)
     uri = path_to_uri(path)
     return response(uri, Net::HTTP::Get.new(uri))
+  end
+
+  def del_with_auth(path, headers ={})
+    uri = path_to_uri(path)
+    request = with_auth(Net::HTTP::Delete.new(uri), ENV['TAXII_USER'], ENV['TAXII_PASSWORD'])
+    with_headers!(request, headers)
+    return response(uri, request)
+  end
+
+  def del_without_auth(path, headers ={})
+    uri = path_to_uri(path)
+    request = with_auth(Net::HTTP::Delete.new(uri), ENV['TAXII_USER_RO'], ENV['TAXII_PASSWORD_RO'])
+    with_headers!(request, headers)
+    return response(uri, request)
   end
 
   def get_with_auth(path, headers = {})

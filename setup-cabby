@@ -1,0 +1,31 @@
+#!/usr/bin/env bash
+
+# this is run on the vm/container hosting the cabby server in order to set it up for use.
+#  - NOTE: when cabby is installed, a cli is available to use to create resources
+#  - NOTE: referenced vars are located in the .env file for this repo
+
+set -euo pipefail
+# ref: http://redsymbol.net/articles/unofficial-bash-strict-mode/
+
+ENV_FILE_DIR=$(dirname "$(realpath $0)")
+source $ENV_FILE_DIR/.env
+
+# command to create certs for serving over https
+cabby-certs
+
+# create a testing user, make them admin
+cabby-cli create user -u "$TAXII_USER" -p "$TAXII_PASSWORD" -a
+
+# create discovery resource
+cabby-cli create discovery -d "$DISCOVERY_DESCRIPTION" -t "$DISCOVERY_TITLE" -u "$DISCOVERY_DEFAULT" -c "$DISCOVERY_CONTACT"
+
+# create an api root
+cabby-cli create apiRoot -a "$API_ROOT_PATH" -t "$API_ROOT_TITLE" -m "$API_ROOT_MAX_CONTENT_LENGTH" -v "$API_ROOT_VERSION"
+
+# create a collection, make TAXII_USER read/write
+cabby-cli create collection -a "$API_ROOT_PATH" -t "$COLLECTION_TITLE" -i "$COLLECTION_ID"
+cabby-cli create userCollection -u "$TAXII_USER" -i "$COLLECTION_ID" -r -w
+
+# create a non admin user and make read-only on collection
+cabby-cli create user -u "$TAXII_USER_RO" -p "$TAXII_PASSWORD_RO"
+cabby-cli create userCollection -u "$TAXII_USER_RO" -i "$COLLECTION_ID" -r

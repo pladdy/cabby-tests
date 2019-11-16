@@ -9,9 +9,10 @@ ARG CABBY_DIR
 ARG GOVERSION
 
 WORKDIR $CABBY_DIR
-COPY ./ $CABBY_DIR
 
-# assume cabby source is available
+# copy over files to launch and set up a cabby server
+COPY ./.env /opt
+COPY ./setup-cabby /opt
 COPY cabby/ $CABBY_DIR
 
 ENV GOPATH /opt/go
@@ -37,10 +38,10 @@ RUN set -eux; \
 RUN set -eux; \
   make cabby.deb
 
-# install cabby and do a dev setup (setup script is in the cabby repo)
+# install cabby and set it up
 RUN set -eux; \
   dpkg -i cabby.deb; \
-  vagrant/setup-cabby
+  /opt/setup-cabby
 
 # run app to test
 EXPOSE 1234

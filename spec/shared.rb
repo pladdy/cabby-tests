@@ -102,6 +102,15 @@ shared_examples "error resource" do |response|
   end
 end
 
+shared_examples "forbidden" do |response|
+  include_examples "error resource", response
+
+  status = "403"
+  it "returns a #{status} status code" do
+    expect(response.code).to eq(status)
+  end
+end
+
 shared_examples "header 'content-type' is taxii" do |response|
   it 'has header with a taxii content type' do
     expect(response.to_hash['content-type'].first).to match(/application\/vnd.oasis.taxii\+json/)
