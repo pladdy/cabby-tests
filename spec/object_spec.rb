@@ -4,15 +4,19 @@ require 'shared'
 describe "object, negative cases" do
   context "when http get" do
     context 'with no basic auth' do
-      include_examples "unauthorized", get_no_auth(test_object_path)
-    end
-
-    context 'with basic auth' do
-      context 'with no accept header' do
-        include_examples "not acceptable", get_with_auth(test_object_path)
+      context 'with valid accept header' do
+        include_examples "unauthorized", get_no_auth(test_object_path, {'Accept' => TAXII_ACCEPT})
       end
 
       context 'with invalid accept header' do
+        include_examples "not acceptable", get_no_auth(test_object_path)
+        include_examples "not acceptable", get_no_auth(test_object_path, {'Accept' => 'invalid'})
+      end
+    end
+
+    context 'with basic auth' do
+      context 'with invalid accept header' do
+        include_examples "not acceptable", get_with_auth(test_object_path)
         include_examples "not acceptable", get_with_auth(test_object_path, {'Accept' => 'invalid'})
       end
 
@@ -58,7 +62,7 @@ describe "object, positive cases" do
         context 'without authorization' do
           # create object with authorized user
           post_with_auth(delete_object_path, headers, payload)
-          # delete with unauthorized user
+          # delete with read-only user
           include_examples "forbidden", del_without_auth(delete_object_path, headers)
           # clean up
           del_with_auth(delete_object_path, headers)

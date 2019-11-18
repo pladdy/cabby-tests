@@ -49,9 +49,12 @@ module Helpers
 
   # http helpers
 
-  def get_no_auth(path)
+  def get_no_auth(path, headers = {})
     uri = path_to_uri(path)
-    return response(uri, Net::HTTP::Get.new(uri))
+    request = Net::HTTP::Get.new(uri)
+    with_headers!(request, headers)
+    res = response(uri, request)
+    return res
   end
 
   def del_with_auth(path, headers ={})

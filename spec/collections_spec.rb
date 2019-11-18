@@ -3,15 +3,19 @@ require 'shared'
 
 describe "#{collections_path} negative cases" do
   context 'with no basic auth' do
-    include_examples "unauthorized", get_no_auth(collections_path)
-  end
-
-  context 'with basic auth' do
-    context 'with no accept header' do
-      include_examples "not acceptable", get_with_auth(collections_path)
+    context 'with valid accept header' do
+      include_examples "unauthorized", get_no_auth(collections_path, {'Accept' => TAXII_ACCEPT})
     end
 
     context 'with invalid accept header' do
+      include_examples "not acceptable", get_no_auth(collections_path)
+      include_examples "not acceptable", get_no_auth(collections_path, {'Accept' => 'invalid'})
+    end
+  end
+
+  context 'with basic auth' do
+    context 'with invalid accept header' do
+      include_examples "not acceptable", get_with_auth(collections_path)
       include_examples "not acceptable", get_with_auth(collections_path, {'Accept' => 'invalid'})
     end
 
